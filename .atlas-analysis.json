@@ -1,0 +1,85 @@
+{
+  "projectType": "frontend",
+  "projectName": "VetyCare",
+  "projectDescription": "An Android mobile application for veterinary care management built with Kotlin and Material Design 3",
+  "theme": "almond",
+  "primaryColor": "#00897B",
+  "lightColor": "#4DB6AC",
+  "darkColor": "#00695C",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "setup"
+            ]
+          },
+          {
+            "group": "Architecture",
+            "pages": [
+              "architecture/overview",
+              "architecture/project-structure",
+              "architecture/navigation"
+            ]
+          },
+          {
+            "group": "Components",
+            "pages": [
+              "components/main-activity",
+              "components/fragments",
+              "components/view-binding"
+            ]
+          },
+          {
+            "group": "UI & Styling",
+            "pages": [
+              "ui/layouts",
+              "ui/material-design",
+              "ui/themes"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Development",
+        "groups": [
+          {
+            "group": "Build & Deploy",
+            "pages": [
+              "development/building",
+              "development/testing",
+              "development/deployment"
+            ]
+          },
+          {
+            "group": "Contributing",
+            "pages": [
+              "development/contributing",
+              "development/code-style"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Material Design 3 UI components",
+    "Fragment-based navigation",
+    "View binding architecture",
+    "Android Jetpack libraries integration",
+    "Responsive layouts for multiple screen sizes"
+  ],
+  "publicApiSurface": [
+    "MainActivity",
+    "FirstFragment",
+    "SecondFragment",
+    "FragmentFirstBinding",
+    "FragmentSecondBinding",
+    "ActivityMainBinding"
+  ]
+}
