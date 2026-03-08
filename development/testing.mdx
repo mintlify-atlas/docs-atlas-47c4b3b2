@@ -1,0 +1,376 @@
+---
+title: Testing
+description: Comprehensive guide to testing VetyCare with unit tests and instrumented tests
+---
+
+## Overview
+
+VetyCare includes a testing infrastructure using JUnit for unit tests and Espresso for instrumented UI tests. The project follows Android's recommended testing practices.
+
+## Test Structure
+
+The project contains two main test directories:
+
+```
+app/src/
+├── test/                           # Unit tests (JVM)
+│   └── java/com/example/vetycare/
+│       └── ExampleUnitTest.kt
+└── androidTest/                    # Instrumented tests (Android device/emulator)
+    └── java/com/example/vetycare/
+        └── ExampleInstrumentedTest.kt
+```
+
+## Testing Dependencies
+
+The testing framework is configured in `app/build.gradle.kts`:
+
+<CodeGroup>
+```gradle Testing Dependencies
+dependencies {
+    // Unit testing
+    testImplementation(libs.junit)  // JUnit 4.13.2
+    
+    // Instrumented testing
+    androidTestImplementation(libs.androidx.junit)         // AndroidX Test 1.3.0
+    androidTestImplementation(libs.androidx.espresso.core) // Espresso 3.7.0
+}
+```
+
+```gradle Test Runner Configuration
+android {
+    defaultConfig {
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+}
+```
+</CodeGroup>
+
+### Dependency Versions
+
+From `gradle/libs.versions.toml`:
+
+| Library | Version | Purpose |
+|---------|---------|----------|
+| JUnit | 4.13.2 | Unit testing framework |
+| AndroidX JUnit | 1.3.0 | Android test extensions |
+| Espresso Core | 3.7.0 | UI testing framework |
+
+## Unit Tests
+
+Unit tests run on your local JVM without requiring an Android device or emulator.
+
+### Example Unit Test
+
+The project includes a sample unit test in `app/src/test/java/com/example/vetycare/ExampleUnitTest.kt`:
+
+```kotlin
+package com.example.vetycare
+
+import org.junit.Test
+import org.junit.Assert.*
+
+/**
+ * Example local unit test, which will execute on the development machine (host).
+ *
+ * See [testing documentation](http://d.android.com/tools/testing).
+ */
+class ExampleUnitTest {
+    @Test
+    fun addition_isCorrect() {
+        assertEquals(4, 2 + 2)
+    }
+}
+```
+
+### Running Unit Tests
+
+<Steps>
+  <Step title="Run All Unit Tests">
+    Execute all unit tests in the project:
+    
+    ```bash
+    ./gradlew test
+    ```
+  </Step>
+
+  <Step title="Run Debug Unit Tests">
+    Run only tests for the debug build variant:
+    
+    ```bash
+    ./gradlew testDebugUnitTest
+    ```
+  </Step>
+
+  <Step title="Run Release Unit Tests">
+    Run only tests for the release build variant:
+    
+    ```bash
+    ./gradlew testReleaseUnitTest
+    ```
+  </Step>
+
+  <Step title="View Test Reports">
+    Test reports are generated at:
+    ```
+    app/build/reports/tests/testDebugUnitTest/index.html
+    ```
+    
+    Open this file in a browser to see detailed results.
+  </Step>
+</Steps>
+
+<Tip>
+Use `./gradlew test --tests "*ExampleUnitTest"` to run specific test classes.
+</Tip>
+
+## Instrumented Tests
+
+Instrumented tests run on a physical Android device or emulator, providing access to Android framework APIs.
+
+### Example Instrumented Test
+
+The project includes a sample instrumented test in `app/src/androidTest/java/com/example/vetycare/ExampleInstrumentedTest.kt`:
+
+```kotlin
+package com.example.vetycare
+
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.ext.junit.runners.AndroidJUnit4
+
+import org.junit.Test
+import org.junit.runner.RunWith
+
+import org.junit.Assert.*
+
+/**
+ * Instrumented test, which will execute on an Android device.
+ *
+ * See [testing documentation](http://d.android.com/tools/testing).
+ */
+@RunWith(AndroidJUnit4::class)
+class ExampleInstrumentedTest {
+    @Test
+    fun useAppContext() {
+        // Context of the app under test.
+        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
+        assertEquals("com.example.vetycare", appContext.packageName)
+    }
+}
+```
+
+### Running Instrumented Tests
+
+<Steps>
+  <Step title="Connect Device or Start Emulator">
+    Ensure you have an Android device connected via USB with debugging enabled, or start an Android emulator.
+    
+    Verify device connection:
+    ```bash
+    adb devices
+    ```
+  </Step>
+
+  <Step title="Run All Instrumented Tests">
+    Execute all instrumented tests:
+    
+    ```bash
+    ./gradlew connectedAndroidTest
+    ```
+  </Step>
+
+  <Step title="Run Debug Instrumented Tests">
+    Run only tests for the debug build:
+    
+    ```bash
+    ./gradlew connectedDebugAndroidTest
+    ```
+  </Step>
+
+  <Step title="View Test Reports">
+    Test reports are generated at:
+    ```
+    app/build/reports/androidTests/connected/index.html
+    ```
+  </Step>
+</Steps>
+
+<Warning>
+Instrumented tests require a device or emulator with API level 28 (Android 9.0) or higher, matching the app's minSdk.
+</Warning>
+
+## Writing Your Own Tests
+
+### Creating a Unit Test
+
+<Steps>
+  <Step title="Create Test File">
+    Create a new Kotlin file in `app/src/test/java/com/example/vetycare/`:
+    
+    ```kotlin
+    package com.example.vetycare
+    
+    import org.junit.Test
+    import org.junit.Assert.*
+    import org.junit.Before
+    
+    class PetValidatorTest {
+        private lateinit var validator: PetValidator
+        
+        @Before
+        fun setup() {
+            validator = PetValidator()
+        }
+        
+        @Test
+        fun validatePetName_emptyName_returnsFalse() {
+            val result = validator.validateName("")
+            assertFalse(result)
+        }
+        
+        @Test
+        fun validatePetName_validName_returnsTrue() {
+            val result = validator.validateName("Buddy")
+            assertTrue(result)
+        }
+    }
+    ```
+  </Step>
+
+  <Step title="Run the Test">
+    ```bash
+    ./gradlew test --tests "*PetValidatorTest"
+    ```
+  </Step>
+</Steps>
+
+### Creating an Instrumented Test
+
+<Steps>
+  <Step title="Create Test File">
+    Create a new Kotlin file in `app/src/androidTest/java/com/example/vetycare/`:
+    
+    ```kotlin
+    package com.example.vetycare
+    
+    import androidx.test.ext.junit.rules.ActivityScenarioRule
+    import androidx.test.ext.junit.runners.AndroidJUnit4
+    import androidx.test.espresso.Espresso.onView
+    import androidx.test.espresso.action.ViewActions.click
+    import androidx.test.espresso.assertion.ViewAssertions.matches
+    import androidx.test.espresso.matcher.ViewMatchers.*
+    
+    import org.junit.Rule
+    import org.junit.Test
+    import org.junit.runner.RunWith
+    
+    @RunWith(AndroidJUnit4::class)
+    class MainActivityTest {
+        @get:Rule
+        val activityRule = ActivityScenarioRule(MainActivity::class.java)
+        
+        @Test
+        fun clickFab_opensNewScreen() {
+            // Click the floating action button
+            onView(withId(R.id.fab))
+                .perform(click())
+            
+            // Verify navigation occurred
+            onView(withId(R.id.add_pet_layout))
+                .check(matches(isDisplayed()))
+        }
+    }
+    ```
+  </Step>
+
+  <Step title="Run the Test">
+    ```bash
+    ./gradlew connectedAndroidTest --tests "*MainActivityTest"
+    ```
+  </Step>
+</Steps>
+
+## Test Commands Reference
+
+<CodeGroup>
+```bash Run All Tests
+# Run both unit and instrumented tests
+./gradlew test connectedAndroidTest
+```
+
+```bash Run Specific Test Class
+# Run a specific test class
+./gradlew test --tests "com.example.vetycare.PetValidatorTest"
+```
+
+```bash Run Tests with Coverage
+# Generate code coverage report
+./gradlew testDebugUnitTest jacocoTestReport
+```
+
+```bash Clean Test Results
+# Remove previous test results
+./gradlew cleanTest
+```
+</CodeGroup>
+
+## Test Reports
+
+After running tests, reports are generated in the build directory:
+
+### Unit Test Reports
+
+- **Location**: `app/build/reports/tests/testDebugUnitTest/index.html`
+- **Contents**: Test results, execution time, pass/fail status
+
+### Instrumented Test Reports
+
+- **Location**: `app/build/reports/androidTests/connected/index.html`
+- **Contents**: Device information, test results, screenshots (if configured)
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Test Naming" icon="signature">
+    Use descriptive names: `methodName_stateUnderTest_expectedBehavior`
+  </Card>
+  <Card title="Isolation" icon="cube">
+    Each test should be independent and not rely on execution order
+  </Card>
+  <Card title="Fast Unit Tests" icon="bolt">
+    Keep unit tests fast by avoiding Android dependencies
+  </Card>
+  <Card title="UI Tests" icon="mobile">
+    Use Espresso for UI testing with stable selectors
+  </Card>
+</CardGroup>
+
+## Continuous Integration
+
+For CI/CD pipelines, combine test commands:
+
+```bash
+# Run unit tests first (faster)
+./gradlew test
+
+# Then run instrumented tests (slower)
+./gradlew connectedAndroidTest
+
+# Or run all tests together
+./gradlew test connectedAndroidTest
+```
+
+<Note>
+Instrumented tests require an emulator or device in CI environments. Consider using cloud testing services like Firebase Test Lab for scalable testing.
+</Note>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Building" icon="hammer" href="/development/building">
+    Learn how to build debug and release versions
+  </Card>
+  <Card title="Deployment" icon="rocket" href="/development/deployment">
+    Prepare your app for production release
+  </Card>
+</CardGroup>

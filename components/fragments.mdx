@@ -1,0 +1,387 @@
+---
+title: Fragments
+description: Understanding FirstFragment and SecondFragment in the VetyCare navigation flow
+---
+
+## Overview
+
+Fragments are modular UI components that represent a portion of the user interface within an activity. VetyCare uses fragments to implement a multi-screen navigation pattern within a single `MainActivity`.
+
+The app contains two main fragments:
+- **FirstFragment**: The default destination and home screen
+- **SecondFragment**: The secondary screen accessible via navigation
+
+## Why Use Fragments?
+
+<CardGroup cols={2}>
+  <Card title="Modularity" icon="cubes">
+    Each screen is encapsulated in its own fragment, making code more maintainable and reusable
+  </Card>
+  <Card title="Navigation" icon="route">
+    Fragments work seamlessly with the Navigation Component for smooth screen transitions
+  </Card>
+  <Card title="Lifecycle Management" icon="arrows-rotate">
+    Fragments have their own lifecycle that's managed by the parent activity
+  </Card>
+  <Card title="Single Activity Pattern" icon="window-maximize">
+    Multiple fragments can share one activity, reducing memory overhead and improving performance
+  </Card>
+</CardGroup>
+
+## FirstFragment
+
+### Overview
+
+`FirstFragment` serves as the default destination in the navigation graph. It displays a button that navigates to `SecondFragment` when clicked.
+
+```kotlin FirstFragment.kt:14
+class FirstFragment : Fragment() {
+    // Implementation
+}
+```
+
+### Properties
+
+<ParamField path="_binding" type="FragmentFirstBinding?">
+  Private nullable binding property. Set to `null` in `onDestroyView()` to prevent memory leaks.
+</ParamField>
+
+<ParamField path="binding" type="FragmentFirstBinding">
+  Public non-null binding property with a custom getter. Only valid between `onCreateView()` and `onDestroyView()`.
+</ParamField>
+
+```kotlin FirstFragment.kt:16-20
+private var _binding: FragmentFirstBinding? = null
+
+// This property is only valid between onCreateView and
+// onDestroyView.
+private val binding get() = _binding!!
+```
+
+<Warning>
+  **Memory Leak Prevention:** The nullable `_binding` property is set to `null` in `onDestroyView()`. This is crucial because fragments can outlive their views, and holding a reference to the binding would cause a memory leak.
+</Warning>
+
+### Lifecycle Implementation
+
+#### onCreateView()
+
+This method inflates the fragment's layout and initializes view binding:
+
+```kotlin FirstFragment.kt:22-30
+override fun onCreateView(
+    inflater: LayoutInflater, container: ViewGroup?,
+    savedInstanceState: Bundle?
+): View {
+
+    _binding = FragmentFirstBinding.inflate(inflater, container, false)
+    return binding.root
+
+}
+```
+
+<Steps>
+  <Step title="Inflate the Binding">
+    Create the binding by inflating the layout:
+    ```kotlin
+    _binding = FragmentFirstBinding.inflate(inflater, container, false)
+    ```
+    The third parameter `false` tells the inflater not to attach the view to the container immediately (the framework will do this).
+  </Step>
+  
+  <Step title="Return Root View">
+    Return the root view from the binding:
+    ```kotlin
+    return binding.root
+    ```
+    This view will be added to the fragment's container by the framework.
+  </Step>
+</Steps>
+
+#### onViewCreated()
+
+This method is called after the view hierarchy is created and is the ideal place to set up UI interactions:
+
+```kotlin FirstFragment.kt:32-38
+override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+
+    binding.buttonFirst.setOnClickListener {
+        findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
+    }
+}
+```
+
+<Note>
+  **Navigation Action:** When the button is clicked, `findNavController().navigate()` is used to navigate to `SecondFragment`. The action ID `R.id.action_FirstFragment_to_SecondFragment` is defined in the navigation graph (`nav_graph.xml`).
+</Note>
+
+#### onDestroyView()
+
+This method cleans up the binding reference to prevent memory leaks:
+
+```kotlin FirstFragment.kt:40-43
+override fun onDestroyView() {
+    super.onDestroyView()
+    _binding = null
+}
+```
+
+<Warning>
+  **Critical for Memory Management:** Setting `_binding = null` is essential because the fragment instance may outlive its view. Without this, the binding would hold references to views that no longer exist, causing memory leaks.
+</Warning>
+
+### Layout Structure
+
+The fragment uses a `NestedScrollView` containing a `ConstraintLayout`:
+
+```xml fragment_first.xml
+<androidx.core.widget.NestedScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+
+        <Button
+            android:id="@+id/button_first"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/next" />
+
+        <TextView
+            android:id="@+id/textview_first"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+            
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>
+```
+
+## SecondFragment
+
+### Overview
+
+`SecondFragment` is the second destination in the navigation flow. It mirrors the structure of `FirstFragment` but navigates back to the first fragment.
+
+```kotlin SecondFragment.kt:14
+class SecondFragment : Fragment() {
+    // Implementation
+}
+```
+
+### Properties
+
+Identical to `FirstFragment`, using the same nullable/non-null binding pattern:
+
+```kotlin SecondFragment.kt:16-20
+private var _binding: FragmentSecondBinding? = null
+
+// This property is only valid between onCreateView and
+// onDestroyView.
+private val binding get() = _binding!!
+```
+
+### Lifecycle Implementation
+
+#### onCreateView()
+
+```kotlin SecondFragment.kt:22-30
+override fun onCreateView(
+    inflater: LayoutInflater, container: ViewGroup?,
+    savedInstanceState: Bundle?
+): View {
+
+    _binding = FragmentSecondBinding.inflate(inflater, container, false)
+    return binding.root
+
+}
+```
+
+#### onViewCreated()
+
+Sets up the button to navigate back to `FirstFragment`:
+
+```kotlin SecondFragment.kt:32-38
+override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+
+    binding.buttonSecond.setOnClickListener {
+        findNavController().navigate(R.id.action_SecondFragment_to_FirstFragment)
+    }
+}
+```
+
+<Tip>
+  **Bidirectional Navigation:** The app implements bidirectional navigation between fragments. Each fragment can navigate to the other using actions defined in the navigation graph.
+</Tip>
+
+#### onDestroyView()
+
+```kotlin SecondFragment.kt:40-43
+override fun onDestroyView() {
+    super.onDestroyView()
+    _binding = null
+}
+```
+
+### Layout Structure
+
+```xml fragment_second.xml
+<androidx.core.widget.NestedScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+
+        <Button
+            android:id="@+id/button_second"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/previous" />
+
+        <TextView
+            android:id="@+id/textview_second"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+            
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>
+```
+
+## Fragment Lifecycle
+
+Understanding the fragment lifecycle is crucial for proper resource management:
+
+<Steps>
+  <Step title="onCreateView()">
+    Called to create the view hierarchy. This is where you inflate the layout and initialize view binding.
+    
+    ```kotlin
+    _binding = FragmentFirstBinding.inflate(inflater, container, false)
+    return binding.root
+    ```
+  </Step>
+  
+  <Step title="onViewCreated()">
+    Called immediately after `onCreateView()` when the view hierarchy exists. Set up view listeners and interactions here.
+    
+    ```kotlin
+    binding.buttonFirst.setOnClickListener {
+        findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
+    }
+    ```
+  </Step>
+  
+  <Step title="onDestroyView()">
+    Called when the view hierarchy is being removed. Clean up view-related resources to prevent memory leaks.
+    
+    ```kotlin
+    _binding = null
+    ```
+  </Step>
+</Steps>
+
+<Note>
+  **Fragment vs View Lifecycle:** A fragment instance can outlive its view. When navigating away, the view is destroyed (`onDestroyView()`) but the fragment instance may be kept in memory. If you navigate back, `onCreateView()` is called again with the same fragment instance.
+</Note>
+
+## Navigation Pattern
+
+### Using findNavController()
+
+Both fragments use `findNavController()` to access the Navigation Controller:
+
+```kotlin
+findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
+```
+
+<CardGroup cols={2}>
+  <Card title="Type-Safe Navigation" icon="shield-check">
+    Action IDs are generated from the navigation graph, ensuring compile-time safety
+  </Card>
+  <Card title="Automatic Back Stack" icon="layer-group">
+    The Navigation Component automatically manages the back stack
+  </Card>
+  <Card title="Animation Support" icon="wand-magic-sparkles">
+    Transitions between fragments can include animations defined in the navigation graph
+  </Card>
+  <Card title="Deep Linking" icon="link">
+    The navigation graph supports deep links to specific fragments
+  </Card>
+</CardGroup>
+
+## Import Dependencies
+
+### FirstFragment Imports
+
+```kotlin FirstFragment.kt:1-9
+package com.example.vetycare
+
+import android.os.Bundle
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.navigation.fragment.findNavController
+import com.example.vetycare.databinding.FragmentFirstBinding
+```
+
+### SecondFragment Imports
+
+```kotlin SecondFragment.kt:1-9
+package com.example.vetycare
+
+import android.os.Bundle
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.navigation.fragment.findNavController
+import com.example.vetycare.databinding.FragmentSecondBinding
+```
+
+## Best Practices Demonstrated
+
+<Steps>
+  <Step title="Nullable Binding Pattern">
+    Using a nullable `_binding` property with a non-null getter prevents memory leaks while providing convenient access:
+    
+    ```kotlin
+    private var _binding: FragmentFirstBinding? = null
+    private val binding get() = _binding!!
+    ```
+  </Step>
+  
+  <Step title="Separation of Concerns">
+    Views are inflated in `onCreateView()` while UI logic is set up in `onViewCreated()`, following Android best practices.
+  </Step>
+  
+  <Step title="Proper Cleanup">
+    Always nullify binding references in `onDestroyView()` to prevent memory leaks:
+    
+    ```kotlin
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+    ```
+  </Step>
+  
+  <Step title="Navigation Component Integration">
+    Using `findNavController().navigate()` instead of manual fragment transactions ensures proper lifecycle management and back stack handling.
+  </Step>
+</Steps>
+
+<Warning>
+  **Common Mistake:** Accessing `binding` after `onDestroyView()` will throw a `NullPointerException`. Always ensure view-related operations occur between `onCreateView()` and `onDestroyView()`.
+</Warning>
+
+<Tip>
+  **Testing Fragments:** Fragments can be tested in isolation using `FragmentScenario`, making them more testable than activities for UI logic.
+</Tip>

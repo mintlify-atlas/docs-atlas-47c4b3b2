@@ -1,0 +1,294 @@
+---
+title: Layouts
+description: Learn about VetyCare's layout architecture using ConstraintLayout, CoordinatorLayout, and responsive design patterns
+---
+
+VetyCare uses modern Android layout patterns with Material Design components to create a responsive and adaptive user interface. The app leverages ConstraintLayout for flexible positioning and CoordinatorLayout for coordinated motion and scrolling behaviors.
+
+## Layout Architecture
+
+The app follows a hierarchical layout structure with three main layers:
+
+<Steps>
+  <Step title="Main Activity Layout">
+    The root container using CoordinatorLayout for coordinated animations
+  </Step>
+  <Step title="Content Container">
+    ConstraintLayout hosting the Navigation component for fragment management
+  </Step>
+  <Step title="Fragment Layouts">
+    Individual fragment layouts with NestedScrollView for scrollable content
+  </Step>
+</Steps>
+
+## Activity Main Layout
+
+The main activity layout (`activity_main.xml`) uses `CoordinatorLayout` as the root container, which enables coordinated motion between the AppBar, FAB, and content:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".MainActivity">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <include layout="@layout/content_main" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_marginBottom="16dp"
+        app:srcCompat="@android:drawable/ic_dialog_email" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
+```
+
+### Key Components
+
+<CardGroup cols={2}>
+  <Card title="CoordinatorLayout" icon="layer-group">
+    Root container that coordinates motion and behavior between child views like the AppBar and FAB
+  </Card>
+  <Card title="AppBarLayout" icon="bars">
+    Container for the toolbar that supports collapsing and scrolling behaviors
+  </Card>
+  <Card title="MaterialToolbar" icon="toolbox">
+    Material Design 3 toolbar component with support for navigation and menu items
+  </Card>
+  <Card title="FloatingActionButton" icon="plus">
+    Material FAB positioned at bottom-end with responsive margins
+  </Card>
+</CardGroup>
+
+<Note>
+The `android:fitsSystemWindows="true"` attribute ensures the layout properly handles system UI elements like the status bar and navigation bar.
+</Note>
+
+## Content Main Layout
+
+The content layout (`content_main.xml`) uses ConstraintLayout to host the Navigation component:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+    <fragment
+        android:id="@+id/nav_host_fragment_content_main"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:defaultNavHost="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:navGraph="@navigation/nav_graph" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+```
+
+### ConstraintLayout Features
+
+<Tabs>
+  <Tab title="Constraint Chains">
+    The NavHostFragment uses `0dp` (MATCH_CONSTRAINT) width and height with constraints to all four edges, making it fill the entire parent container efficiently.
+  </Tab>
+  <Tab title="Scrolling Behavior">
+    The `layout_behavior` attribute links this layout to the AppBar's scrolling behavior, ensuring the content scrolls beneath the toolbar.
+  </Tab>
+  <Tab title="Navigation Component">
+    The NavHostFragment manages fragment transactions and navigation, with the navigation graph defined in `nav_graph.xml`.
+  </Tab>
+</Tabs>
+
+## Fragment Layouts
+
+Both `fragment_first.xml` and `fragment_second.xml` follow a consistent pattern using NestedScrollView with ConstraintLayout:
+
+<CodeGroup>
+```xml fragment_first.xml
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".FirstFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+
+        <Button
+            android:id="@+id/button_first"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/next"
+            app:layout_constraintBottom_toTopOf="@id/textview_first"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textview_first"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/lorem_ipsum"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/button_first" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>
+```
+
+```xml fragment_second.xml
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SecondFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+
+        <Button
+            android:id="@+id/button_second"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/previous"
+            app:layout_constraintBottom_toTopOf="@id/textview_second"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textview_second"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/lorem_ipsum"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/button_second" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>
+```
+</CodeGroup>
+
+<Tip>
+**NestedScrollView** works seamlessly with CoordinatorLayout to provide smooth scrolling behavior and proper coordination with the AppBar and FAB.
+</Tip>
+
+## Responsive Design
+
+VetyCare implements responsive design using resource qualifiers to adapt layouts across different screen sizes and orientations. The app uses dimension resources that change based on device configuration:
+
+### FAB Margin Adaptation
+
+The FloatingActionButton margin adjusts based on screen size to provide optimal spacing:
+
+<CardGroup cols={3}>
+  <Card title="Default" icon="mobile">
+    **16dp** margin for phones in portrait mode
+    
+    ```xml values/dimens.xml
+    <dimen name="fab_margin">16dp</dimen>
+    ```
+  </Card>
+  <Card title="Landscape & Medium" icon="tablet">
+    **48dp** margin for landscape and tablets (≥600dp width)
+    
+    ```xml values-land/dimens.xml
+    <dimen name="fab_margin">48dp</dimen>
+    ```
+    
+    ```xml values-w600dp/dimens.xml
+    <dimen name="fab_margin">48dp</dimen>
+    ```
+  </Card>
+  <Card title="Large Screens" icon="desktop">
+    **200dp** margin for large screens (≥1240dp width)
+    
+    ```xml values-w1240dp/dimens.xml
+    <dimen name="fab_margin">200dp</dimen>
+    ```
+  </Card>
+</CardGroup>
+
+### Resource Qualifiers
+
+<Tabs>
+  <Tab title="values-land">
+    Resources for landscape orientation. The FAB margin increases to 48dp to account for wider screens.
+  </Tab>
+  <Tab title="values-w600dp">
+    Resources for screens with minimum width of 600dp (typically 7" tablets). Ensures optimal spacing on medium-sized tablets.
+  </Tab>
+  <Tab title="values-w1240dp">
+    Resources for screens with minimum width of 1240dp (large tablets and foldables). Provides generous margins for expansive screens.
+  </Tab>
+</Tabs>
+
+<Warning>
+When adding new dimension resources, ensure you maintain consistency across all qualifier directories to prevent layout issues on different device configurations.
+</Warning>
+
+## Layout Best Practices
+
+When working with VetyCare's layouts, follow these guidelines:
+
+1. **Use ConstraintLayout for complex layouts** - More efficient than nested LinearLayouts or RelativeLayouts
+2. **Leverage CoordinatorLayout behaviors** - For smooth animations between AppBar, FAB, and content
+3. **Apply resource qualifiers** - Ensure responsive design across all device sizes
+4. **Use `0dp` for MATCH_CONSTRAINT** - More efficient than `match_parent` in ConstraintLayout
+5. **Wrap scrollable content in NestedScrollView** - Ensures proper coordination with Material components
+6. **Reference dimension resources** - Never hardcode dimensions; use `@dimen` references for maintainability
+
+## ViewBinding
+
+VetyCare uses ViewBinding for type-safe view access. The feature is enabled in `build.gradle.kts`:
+
+```kotlin
+buildFeatures {
+    viewBinding = true
+}
+```
+
+This generates binding classes for each layout file, eliminating `findViewById()` calls and providing compile-time safety.
+
+<Note>
+Learn more about implementing UI components in the [Material Design](/ui/material-design) and [Themes & Styling](/ui/themes) documentation.
+</Note>

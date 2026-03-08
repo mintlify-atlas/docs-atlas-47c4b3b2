@@ -1,80 +1,215 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: 'Quickstart'
+description: 'Get VetyCare up and running on your device in minutes'
 ---
 
-## Get started in three steps
+<Note>
+  This quickstart will guide you through cloning the repository, opening it in Android Studio, and running the app on an emulator or physical device.
+</Note>
 
-Get your documentation site running locally and make your first customization.
+## Prerequisites
 
-### Step 1: Set up your local environment
+Before you begin, ensure you have the following installed:
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+- **Android Studio** Ladybug | 2024.2.1 or later
+- **JDK 11** or higher
+- **Android SDK** with the following:
+  - Minimum SDK: API 28 (Android 9.0)
+  - Target SDK: API 36 (Android 15)
+  - Compile SDK: API 36
+- **Gradle 9.2.1** (included via wrapper)
 
-### Step 2: Deploy your changes
+<Tip>
+  The project uses Gradle wrapper, so you don't need to install Gradle manually. The correct version will be downloaded automatically.
+</Tip>
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+## Quick Start
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+<Steps>
+  <Step title="Clone the Repository">
+    Clone the VetyCare repository to your local machine:
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+    <CodeGroup>
+      ```bash HTTPS
+      git clone https://github.com/your-org/vetycare.git
+      cd vetycare
+      ```
 
-### Step 3: Go live
+      ```bash SSH
+      git clone git@github.com:your-org/vetycare.git
+      cd vetycare
+      ```
+    </CodeGroup>
+  </Step>
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+  <Step title="Open in Android Studio">
+    1. Launch Android Studio
+    2. Click **File** → **Open**
+    3. Navigate to the cloned `vetycare` directory
+    4. Select the root folder and click **OK**
+    5. Wait for Gradle to sync (this may take a few minutes on first launch)
 
-## Next steps
+    <Note>
+      Android Studio will automatically download Gradle 9.2.1 and all required dependencies during the initial sync.
+    </Note>
+  </Step>
 
-Now that you have your docs running, explore these key features:
+  <Step title="Configure an Android Virtual Device (AVD)">
+    If you don't have an emulator set up:
+
+    1. Click the **Device Manager** icon in the toolbar
+    2. Click **Create Device**
+    3. Select a device definition (e.g., Pixel 6)
+    4. Select a system image with API 28 or higher (API 36 recommended)
+    5. Click **Finish**
+
+    <Tip>
+      For the best experience, select an API 36 (Android 15) system image to match the target SDK.
+    </Tip>
+  </Step>
+
+  <Step title="Run the Application">
+    There are two ways to run the app:
+
+    **Option 1: Using Android Studio**
+    1. Select your device/emulator from the device dropdown
+    2. Click the green **Run** button (▶️) or press `Shift + F10`
+    3. The app will build and launch automatically
+
+    **Option 2: Using Gradle Command Line**
+    <CodeGroup>
+      ```bash Linux/macOS
+      ./gradlew installDebug
+      ```
+
+      ```bash Windows
+      gradlew.bat installDebug
+      ```
+    </CodeGroup>
+  </Step>
+</Steps>
+
+## Project Structure
+
+Once you open the project, you'll see this structure:
+
+```
+VetyCare/
+├── app/
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── java/com/example/vetycare/
+│   │   │   │   ├── MainActivity.kt
+│   │   │   │   ├── FirstFragment.kt
+│   │   │   │   └── SecondFragment.kt
+│   │   │   ├── res/
+│   │   │   │   ├── layout/
+│   │   │   │   ├── navigation/
+│   │   │   │   ├── values/
+│   │   │   │   └── ...
+│   │   │   └── AndroidManifest.xml
+│   │   ├── androidTest/
+│   │   └── test/
+│   └── build.gradle.kts
+├── gradle/
+│   ├── libs.versions.toml
+│   └── wrapper/
+├── build.gradle.kts
+├── settings.gradle.kts
+└── gradle.properties
+```
+
+### Key Files
 
 <CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card title="MainActivity.kt" icon="mobile" href="/components/main-activity">
+    Main entry point with navigation setup and Material Design 3 components
+  </Card>
+  
+  <Card title="build.gradle.kts" icon="gear" href="/development/building">
+    App-level build configuration with dependencies and SDK versions
+  </Card>
+  
+  <Card title="Version Catalog" icon="book" href="/development/building">
+    Version catalog for centralized dependency management
+  </Card>
+  
+  <Card title="AndroidManifest.xml" icon="file-code" href="/architecture/project-structure">
+    App configuration and component declarations
+  </Card>
 </CardGroup>
 
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>
+## Understanding the App
+
+VetyCare is built with:
+
+- **Kotlin** as the primary language
+- **Material Design 3** (version 1.13.0) for modern UI components
+- **View Binding** for type-safe view access
+- **Navigation Component** (version 2.9.7) for fragment navigation
+- **AndroidX libraries** for backward compatibility
+
+### Main Components
+
+The app launches with `MainActivity`, which sets up:
+
+```kotlin MainActivity.kt:19-36
+override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+
+    binding = ActivityMainBinding.inflate(layoutInflater)
+    setContentView(binding.root)
+
+    setSupportActionBar(binding.toolbar)
+
+    val navController = findNavController(R.id.nav_host_fragment_content_main)
+    appBarConfiguration = AppBarConfiguration(navController.graph)
+    setupActionBarWithNavController(navController, appBarConfiguration)
+
+    binding.fab.setOnClickListener { view ->
+        Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+            .setAction("Action", null)
+            .setAnchorView(R.id.fab).show()
+    }
+}
+```
+
+Key features:
+- Navigation with back stack support
+- Floating Action Button (FAB) with Snackbar interactions
+- Material toolbar with app bar configuration
+- Type-safe view binding
+
+## Verify Installation
+
+Once the app launches, you should see:
+
+1. A Material Design 3 toolbar at the top
+2. The first fragment content area
+3. A Floating Action Button (FAB) in the bottom-right corner
+4. Clicking the FAB displays a Snackbar message
+5. Navigation between fragments using the UI buttons
+
+<Warning>
+  If the build fails, ensure you have the Android SDK Platform 36 installed via SDK Manager.
+</Warning>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Development Setup" icon="wrench" href="/setup">
+    Configure your development environment for contributing
+  </Card>
+  
+  <Card title="Architecture" icon="diagram-project" href="/architecture/overview">
+    Learn about the app's architecture and design patterns
+  </Card>
+  
+  <Card title="Contributing" icon="code-pull-request" href="/development/contributing">
+    Guidelines for contributing to VetyCare
+  </Card>
+  
+  <Card title="Components" icon="cubes" href="/components/main-activity">
+    Explore the app's components and classes
+  </Card>
+</CardGroup>

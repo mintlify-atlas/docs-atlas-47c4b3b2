@@ -1,0 +1,289 @@
+---
+title: "Architecture Overview"
+description: "Understanding VetyCare's architecture pattern and core components"
+---
+
+VetyCare is built using modern Android development practices with a focus on simplicity, maintainability, and Material Design 3 principles. This page provides an overview of the architectural decisions and patterns used throughout the application.
+
+## Architecture Pattern
+
+VetyCare uses the **Single Activity Architecture** pattern with the Android Navigation Component. This architecture provides:
+
+<CardGroup cols={2}>
+  <Card title="Single Entry Point" icon="door-open">
+    One `MainActivity` manages the entire app lifecycle and hosts all fragments
+  </Card>
+  <Card title="Fragment-Based UI" icon="puzzle-piece">
+    Each screen is implemented as a Fragment for modular UI components
+  </Card>
+  <Card title="Centralized Navigation" icon="map">
+    Navigation Component handles all screen transitions and back stack management
+  </Card>
+  <Card title="View Binding" icon="link">
+    Type-safe view access without findViewById() calls
+  </Card>
+</CardGroup>
+
+## Core Components
+
+<Steps>
+  <Step title="MainActivity">
+    The single activity that hosts all fragments and manages the navigation controller.
+    
+    ```kotlin
+    class MainActivity : AppCompatActivity() {
+        private lateinit var appBarConfiguration: AppBarConfiguration
+        private lateinit var binding: ActivityMainBinding
+        
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            binding = ActivityMainBinding.inflate(layoutInflater)
+            setContentView(binding.root)
+            
+            val navController = findNavController(R.id.nav_host_fragment_content_main)
+            appBarConfiguration = AppBarConfiguration(navController.graph)
+            setupActionBarWithNavController(navController, appBarConfiguration)
+        }
+    }
+    ```
+  </Step>
+  
+  <Step title="Fragments">
+    Each screen is implemented as a Fragment with its own lifecycle and view binding.
+    
+    ```kotlin
+    class FirstFragment : Fragment() {
+        private var _binding: FragmentFirstBinding? = null
+        private val binding get() = _binding!!
+        
+        override fun onCreateView(
+            inflater: LayoutInflater, 
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+        ): View {
+            _binding = FragmentFirstBinding.inflate(inflater, container, false)
+            return binding.root
+        }
+        
+        override fun onDestroyView() {
+            super.onDestroyView()
+            _binding = null
+        }
+    }
+    ```
+  </Step>
+  
+  <Step title="Navigation Graph">
+    XML-based navigation graph defines all destinations and actions.
+    
+    ```xml
+    <navigation
+        android:id="@+id/nav_graph"
+        app:startDestination="@id/FirstFragment">
+        
+        <fragment
+            android:id="@+id/FirstFragment"
+            android:name="com.example.vetycare.FirstFragment">
+            <action
+                android:id="@+id/action_FirstFragment_to_SecondFragment"
+                app:destination="@id/SecondFragment" />
+        </fragment>
+    </navigation>
+    ```
+  </Step>
+</Steps>
+
+## View Binding Architecture
+
+VetyCare uses **View Binding** for type-safe and null-safe view access. View binding is enabled in the app's `build.gradle.kts`:
+
+```gradle
+buildFeatures {
+    viewBinding = true
+}
+```
+
+### Benefits of View Binding
+
+<AccordionGroup>
+  <Accordion title="Type Safety">
+    View binding generates a binding class for each XML layout file, providing compile-time safety for view IDs.
+  </Accordion>
+  
+  <Accordion title="Null Safety">
+    Eliminates `findViewById()` calls and potential `NullPointerException` errors.
+  </Accordion>
+  
+  <Accordion title="Performance">
+    Faster than reflection-based solutions like data binding or findViewById().
+  </Accordion>
+</AccordionGroup>
+
+### View Binding Pattern in Fragments
+
+All fragments follow this consistent pattern:
+
+```kotlin
+private var _binding: FragmentFirstBinding? = null
+private val binding get() = _binding!!
+
+override fun onCreateView(
+    inflater: LayoutInflater, 
+    container: ViewGroup?,
+    savedInstanceState: Bundle?
+): View {
+    _binding = FragmentFirstBinding.inflate(inflater, container, false)
+    return binding.root
+}
+
+override fun onDestroyView() {
+    super.onDestroyView()
+    _binding = null  // Prevent memory leaks
+}
+```
+
+<Warning>
+  Always set `_binding` to null in `onDestroyView()` to avoid memory leaks. The view hierarchy is destroyed when a fragment is placed on the back stack, but the fragment instance is retained.
+</Warning>
+
+## Android Jetpack Components
+
+VetyCare leverages several Android Jetpack libraries for modern Android development:
+
+| Component | Purpose | Version Reference |
+|-----------|---------|------------------|
+| **Core KTX** | Kotlin extensions for Android framework APIs | `libs.androidx.core.ktx` |
+| **AppCompat** | Backward compatibility for newer Android features | `libs.androidx.appcompat` |
+| **Navigation Component** | Fragment navigation and back stack management | `libs.androidx.navigation.fragment.ktx`<br/>`libs.androidx.navigation.ui.ktx` |
+| **ConstraintLayout** | Flexible layout positioning and sizing | `libs.androidx.constraintlayout` |
+
+### Dependencies Configuration
+
+From `app/build.gradle.kts`:
+
+```gradle
+dependencies {
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
+    
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+}
+```
+
+<Tip>
+  VetyCare uses Gradle version catalogs (`libs.*` references) for centralized dependency management. This approach ensures consistent versions across modules.
+</Tip>
+
+## Material Design 3 Integration
+
+VetyCare is built with **Material Design 3** (Material You), Google's latest design system.
+
+### Theme Configuration
+
+The app uses Material 3 theming with dynamic color support:
+
+```xml
+<style name="Base.Theme.VetyCare" parent="Theme.Material3.DayNight.NoActionBar">
+    <!-- Customize your light theme here. -->
+    <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+</style>
+
+<style name="Theme.VetyCare" parent="Base.Theme.VetyCare" />
+```
+
+### Material Components Used
+
+<CardGroup cols={2}>
+  <Card title="CoordinatorLayout" icon="layer-group">
+    Root layout that coordinates interactions between AppBar and FloatingActionButton
+  </Card>
+  <Card title="MaterialToolbar" icon="bars">
+    Modern toolbar implementation with Material 3 styling
+  </Card>
+  <Card title="FloatingActionButton" icon="plus-circle">
+    Primary action button with Material 3 elevation and shape
+  </Card>
+  <Card title="Snackbar" icon="message">
+    Material 3 styled notifications and messages
+  </Card>
+</CardGroup>
+
+Example usage in `MainActivity.kt:31-35`:
+
+```kotlin
+binding.fab.setOnClickListener { view ->
+    Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+        .setAction("Action", null)
+        .setAnchorView(R.id.fab).show()
+}
+```
+
+## Build Configuration
+
+### App Module Configuration
+
+From `app/build.gradle.kts`:
+
+```gradle
+android {
+    namespace = "com.example.vetycare"
+    compileSdk {
+        version = release(36) {
+            minorApiLevel = 1
+        }
+    }
+    
+    defaultConfig {
+        applicationId = "com.example.vetycare"
+        minSdk = 28
+        targetSdk = 36
+        versionCode = 1
+        versionName = "1.0"
+    }
+    
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+}
+```
+
+<Note>
+  **Minimum SDK 28** (Android 9.0 Pie) provides access to modern Android features while covering approximately 95% of active Android devices.
+</Note>
+
+### Key Build Features
+
+- **Namespace**: `com.example.vetycare`
+- **Java Compatibility**: Java 11
+- **View Binding**: Enabled
+- **Kotlin**: Primary development language
+- **ProGuard**: Configured for release builds (currently disabled)
+
+## Architecture Benefits
+
+This architecture provides several advantages:
+
+1. **Simplified Navigation**: Navigation Component handles deep linking, safe args, and back stack management automatically
+2. **Memory Efficient**: Single Activity reduces memory overhead compared to multiple activities
+3. **Shared UI Elements**: Toolbar and FAB persist across fragment transitions
+4. **Type Safety**: View binding and Kotlin eliminate entire classes of runtime errors
+5. **Testability**: Fragment-based architecture enables easier unit and integration testing
+6. **Material Design**: Built-in support for Material 3 components and theming
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Project Structure" icon="folder-tree" href="/architecture/project-structure">
+    Explore the directory structure and file organization
+  </Card>
+  <Card title="Navigation" icon="route" href="/architecture/navigation">
+    Deep dive into navigation implementation and patterns
+  </Card>
+</CardGroup>

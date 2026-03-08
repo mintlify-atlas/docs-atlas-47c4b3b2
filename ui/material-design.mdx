@@ -1,0 +1,310 @@
+---
+title: Material Design 3
+description: Discover how VetyCare implements Material Design 3 components and patterns for a modern Android experience
+---
+
+VetyCare is built with Material Design 3 (Material You), Google's latest design system that provides adaptive theming, updated components, and dynamic color capabilities for Android applications.
+
+## Material Library
+
+The app uses the official Material Components library for Android, which provides pre-built UI components that follow Material Design guidelines.
+
+### Dependency Configuration
+
+Material Design 3 is included via the version catalog in `gradle/libs.versions.toml`:
+
+```toml libs.versions.toml
+[versions]
+material = "1.13.0"
+
+[libraries]
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+```
+
+The library is added to the app module in `build.gradle.kts`:
+
+```kotlin build.gradle.kts
+dependencies {
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
+    // ... other dependencies
+}
+```
+
+<Note>
+**Material 1.13.0** provides full support for Material Design 3 specifications including dynamic color, updated component designs, and improved accessibility features.
+</Note>
+
+## Material Components
+
+VetyCare uses several core Material Design 3 components throughout the application:
+
+<CardGroup cols={2}>
+  <Card title="MaterialToolbar" icon="bars" href="#materialtoolbar">
+    App bar with Material 3 styling and elevation
+  </Card>
+  <Card title="FloatingActionButton" icon="circle-plus" href="#floating-action-button">
+    Primary action button with Material 3 theming
+  </Card>
+  <Card title="Snackbar" icon="message" href="#snackbar">
+    Brief feedback messages with optional actions
+  </Card>
+  <Card title="Navigation Component" icon="route" href="#navigation">
+    Fragment-based navigation with Material transitions
+  </Card>
+</CardGroup>
+
+### MaterialToolbar
+
+The `MaterialToolbar` replaces the traditional ActionBar with a flexible, Material Design 3 compliant toolbar:
+
+```xml activity_main.xml
+<com.google.android.material.appbar.AppBarLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fitsSystemWindows="true">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize" />
+
+</com.google.android.material.appbar.AppBarLayout>
+```
+
+The toolbar is configured in `MainActivity.kt` to work with the Navigation component:
+
+```kotlin MainActivity.kt
+override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+
+    binding = ActivityMainBinding.inflate(layoutInflater)
+    setContentView(binding.root)
+
+    setSupportActionBar(binding.toolbar)
+
+    val navController = findNavController(R.id.nav_host_fragment_content_main)
+    appBarConfiguration = AppBarConfiguration(navController.graph)
+    setupActionBarWithNavController(navController, appBarConfiguration)
+}
+```
+
+<Tabs>
+  <Tab title="Features">
+    - Automatic elevation in Material 3 style
+    - Support for navigation icons and menus
+    - Integration with CoordinatorLayout for scrolling behaviors
+    - Adaptive color theming based on system preferences
+  </Tab>
+  <Tab title="Navigation Integration">
+    The toolbar automatically updates its title and back button based on the current navigation destination through `setupActionBarWithNavController()`.
+  </Tab>
+</Tabs>
+
+### Floating Action Button
+
+The FAB follows Material Design 3 specifications with updated shapes and theming:
+
+```xml activity_main.xml
+<com.google.android.material.floatingactionbutton.FloatingActionButton
+    android:id="@+id/fab"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom|end"
+    android:layout_marginEnd="@dimen/fab_margin"
+    android:layout_marginBottom="16dp"
+    app:srcCompat="@android:drawable/ic_dialog_email" />
+```
+
+The FAB is positioned using `CoordinatorLayout`'s layout gravity and uses responsive margins defined in dimension resources:
+
+<Steps>
+  <Step title="Default Positioning">
+    `bottom|end` gravity places the FAB at the bottom-right (or bottom-left in RTL layouts)
+  </Step>
+  <Step title="Responsive Margins">
+    The `fab_margin` dimension adapts from 16dp on phones to 200dp on large screens
+  </Step>
+  <Step title="Material 3 Styling">
+    Automatic application of primary container color and appropriate elevation
+  </Step>
+</Steps>
+
+### Snackbar
+
+Snackbars provide brief feedback messages with optional actions, following Material 3 design patterns:
+
+```kotlin MainActivity.kt
+binding.fab.setOnClickListener { view ->
+    Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+        .setAction("Action", null)
+        .setAnchorView(R.id.fab).show()
+}
+```
+
+<CardGroup cols={2}>
+  <Card title="Anchor View">
+    The Snackbar is anchored to the FAB using `setAnchorView()`, ensuring it appears above the button without obscuring it
+  </Card>
+  <Card title="Action Support">
+    Snackbars can include action buttons for user interaction, though this example uses `null` as a placeholder
+  </Card>
+</CardGroup>
+
+<Tip>
+Snackbars automatically position themselves based on the anchor view and apply Material 3 theming including dynamic colors and appropriate elevation.
+</Tip>
+
+### Navigation
+
+The Navigation component provides Material motion and transitions between fragments:
+
+```xml content_main.xml
+<fragment
+    android:id="@+id/nav_host_fragment_content_main"
+    android:name="androidx.navigation.fragment.NavHostFragment"
+    android:layout_width="0dp"
+    android:layout_height="0dp"
+    app:defaultNavHost="true"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    app:navGraph="@navigation/nav_graph" />
+```
+
+Navigation handling in `MainActivity.kt`:
+
+```kotlin MainActivity.kt
+override fun onSupportNavigateUp(): Boolean {
+    val navController = findNavController(R.id.nav_host_fragment_content_main)
+    return navController.navigateUp(appBarConfiguration)
+            || super.onSupportNavigateUp()
+}
+```
+
+<Warning>
+Ensure `app:defaultNavHost="true"` is set on the NavHostFragment to properly handle system back button presses.
+</Warning>
+
+## Material Theming Integration
+
+Material Design 3 components automatically inherit theming from the app's Material 3 theme. VetyCare uses `Theme.Material3.DayNight.NoActionBar` as the base theme, which provides:
+
+<Tabs>
+  <Tab title="Dynamic Color">
+    Automatic color theming based on the user's wallpaper and system preferences (Android 12+)
+  </Tab>
+  <Tab title="Day/Night Support">
+    Seamless switching between light and dark themes based on system settings
+  </Tab>
+  <Tab title="Material 3 Components">
+    All Material components receive updated designs with rounded corners, tonal surfaces, and improved contrast
+  </Tab>
+  <Tab title="Typography & Shapes">
+    Material 3 type scale and shape theming applied consistently across all components
+  </Tab>
+</Tabs>
+
+## CoordinatorLayout Behaviors
+
+Material components work seamlessly with `CoordinatorLayout` to provide coordinated motion and behaviors:
+
+```xml activity_main.xml
+<androidx.coordinatorlayout.widget.CoordinatorLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <!-- AppBarLayout with scrolling behaviors -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true">
+        <!-- Toolbar -->
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- Content with scrolling behavior -->
+    <include layout="@layout/content_main" />
+
+    <!-- FAB that dodges Snackbars -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_marginBottom="16dp"
+        app:srcCompat="@android:drawable/ic_dialog_email" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
+```
+
+### Automatic Behaviors
+
+<CardGroup cols={2}>
+  <Card title="FAB Dodging">
+    The FAB automatically moves up when a Snackbar appears and returns when dismissed
+  </Card>
+  <Card title="AppBar Scrolling">
+    The toolbar can hide or show based on scroll position with appropriate scroll flags
+  </Card>
+  <Card title="Snackbar Positioning">
+    Snackbars automatically position themselves above the FAB when anchored
+  </Card>
+  <Card title="Edge-to-Edge">
+    `fitsSystemWindows` ensures proper insets for status bar and navigation bar
+  </Card>
+</CardGroup>
+
+## Material Dependencies
+
+VetyCare's Material implementation relies on several AndroidX libraries:
+
+```toml libs.versions.toml
+[versions]
+appcompat = "1.7.1"
+material = "1.13.0"
+constraintlayout = "2.2.1"
+navigationFragmentKtx = "2.9.7"
+navigationUiKtx = "2.9.7"
+
+[libraries]
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+androidx-navigation-fragment-ktx = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "navigationFragmentKtx" }
+androidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigationUiKtx" }
+```
+
+<Note>
+These libraries work together to provide a cohesive Material Design 3 experience. The `appcompat` library provides backward compatibility, while the navigation libraries integrate seamlessly with Material motion patterns.
+</Note>
+
+## Best Practices
+
+When working with Material Design 3 components in VetyCare:
+
+1. **Use Material Components** - Always use `com.google.android.material` components instead of framework alternatives
+2. **Leverage CoordinatorLayout** - For coordinated motion between AppBar, FAB, and Snackbars
+3. **Apply Proper Theming** - Extend Material 3 themes to ensure consistent styling
+4. **Use ViewBinding** - Access Material components safely with ViewBinding instead of `findViewById()`
+5. **Follow Motion Patterns** - Utilize Material motion specifications for transitions and animations
+6. **Support Dynamic Color** - Material 3 automatically supports dynamic theming on Android 12+
+7. **Test Both Themes** - Verify component appearance in both light and dark modes
+
+<Tip>
+Explore the [Themes & Styling](/ui/themes) documentation to learn how to customize Material 3 components with your own color schemes and styles.
+</Tip>
+
+## Additional Resources
+
+- [Material Design 3 Guidelines](https://m3.material.io/)
+- [Material Components for Android](https://github.com/material-components/material-components-android)
+- [AndroidX Navigation Documentation](https://developer.android.com/guide/navigation)

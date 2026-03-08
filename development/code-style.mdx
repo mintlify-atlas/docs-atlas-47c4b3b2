@@ -1,0 +1,545 @@
+---
+title: Code Style Guide
+description: Kotlin and Android coding conventions for VetyCare
+---
+
+This guide documents the coding standards and conventions used in the VetyCare project. Following these guidelines ensures consistency and maintainability across the codebase.
+
+## Kotlin Coding Conventions
+
+### Naming Conventions
+
+<CardGroup cols={2}>
+  <Card title="Classes" icon="cube">
+    Use PascalCase for class names
+    
+    ```kotlin
+    class MainActivity : AppCompatActivity()
+    class FirstFragment : Fragment()
+    class UserRepository
+    ```
+  </Card>
+  
+  <Card title="Functions & Variables" icon="code">
+    Use camelCase for functions and variables
+    
+    ```kotlin
+    private lateinit var appBarConfiguration: AppBarConfiguration
+    private lateinit var binding: ActivityMainBinding
+    
+    override fun onCreate(savedInstanceState: Bundle?)
+    fun navigateToSettings()
+    ```
+  </Card>
+  
+  <Card title="Constants" icon="lock">
+    Use UPPER_SNAKE_CASE for constants
+    
+    ```kotlin
+    const val MAX_RETRY_ATTEMPTS = 3
+    const val API_BASE_URL = "https://api.example.com"
+    ```
+  </Card>
+  
+  <Card title="Packages" icon="folder">
+    Use lowercase for package names
+    
+    ```kotlin
+    package com.example.vetycare
+    package com.example.vetycare.ui.fragments
+    package com.example.vetycare.data.repository
+    ```
+  </Card>
+</CardGroup>
+
+### Import Organization
+
+Organize imports in the following order, as seen in the codebase:
+
+```kotlin
+// 1. Android framework imports
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+
+// 2. AndroidX and Google imports
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import com.google.android.material.snackbar.Snackbar
+
+// 3. Project imports
+import com.example.vetycare.databinding.ActivityMainBinding
+import com.example.vetycare.R
+```
+
+<Note>
+  Android Studio can automatically organize imports. Use **Code → Optimize Imports** or press **Ctrl+Alt+O** (Windows/Linux) or **Cmd+Option+O** (Mac).
+</Note>
+
+## ViewBinding Pattern
+
+VetyCare uses ViewBinding for type-safe view access. Always follow these patterns:
+
+### Activity ViewBinding
+
+```kotlin
+class MainActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityMainBinding
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        // Access views through binding
+        binding.fab.setOnClickListener { view ->
+            // Handle click
+        }
+    }
+}
+```
+
+### Fragment ViewBinding
+
+Fragments require special handling to prevent memory leaks:
+
+```kotlin
+class FirstFragment : Fragment() {
+
+    private var _binding: FragmentFirstBinding? = null
+
+    // This property is only valid between onCreateView and
+    // onDestroyView.
+    private val binding get() = _binding!!
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+
+        _binding = FragmentFirstBinding.inflate(inflater, container, false)
+        return binding.root
+
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding.buttonFirst.setOnClickListener {
+            findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+}
+```
+
+<Warning>
+  Always set `_binding = null` in `onDestroyView()` to avoid memory leaks in fragments.
+</Warning>
+
+## File Organization
+
+### Class Structure
+
+Organize class members in this order:
+
+<Steps>
+  <Step title="Properties">
+    Declare properties at the top of the class
+    
+    ```kotlin
+    class MainActivity : AppCompatActivity() {
+    
+        private lateinit var appBarConfiguration: AppBarConfiguration
+        private lateinit var binding: ActivityMainBinding
+        
+        // ...
+    }
+    ```
+  </Step>
+  
+  <Step title="Lifecycle Methods">
+    Override lifecycle methods in order of execution
+    
+    ```kotlin
+    override fun onCreate(savedInstanceState: Bundle?)
+    override fun onStart()
+    override fun onResume()
+    override fun onPause()
+    override fun onStop()
+    override fun onDestroy()
+    ```
+  </Step>
+  
+  <Step title="Other Override Methods">
+    Place other overridden methods after lifecycle methods
+    
+    ```kotlin
+    override fun onCreateOptionsMenu(menu: Menu): Boolean
+    override fun onOptionsItemSelected(item: MenuItem): Boolean
+    ```
+  </Step>
+  
+  <Step title="Private Helper Methods">
+    Place private helper methods at the end
+    
+    ```kotlin
+    private fun setupNavigation() { }
+    private fun handleError(error: Exception) { }
+    ```
+  </Step>
+</Steps>
+
+## Code Formatting
+
+### Indentation and Spacing
+
+- Use **4 spaces** for indentation (not tabs)
+- Maximum line length: **120 characters**
+- Add blank lines between methods for readability
+
+### Function Parameters
+
+For functions with multiple parameters, format them as follows:
+
+```kotlin
+// Single line if it fits
+fun shortFunction(param1: String, param2: Int): Boolean
+
+// Multiple lines if too long
+override fun onCreateView(
+    inflater: LayoutInflater,
+    container: ViewGroup?,
+    savedInstanceState: Bundle?
+): View {
+    // Implementation
+}
+```
+
+### When Expressions
+
+Use `when` expressions for multiple conditions:
+
+```kotlin
+return when (item.itemId) {
+    R.id.action_settings -> true
+    R.id.action_profile -> {
+        navigateToProfile()
+        true
+    }
+    else -> super.onOptionsItemSelected(item)
+}
+```
+
+## XML Resource Naming Conventions
+
+### Layout Files
+
+Follow activity/fragment/view-based naming:
+
+```
+activity_main.xml        // Activities
+fragment_first.xml       // Fragments
+fragment_second.xml
+content_main.xml         // Include layouts
+item_appointment.xml     // RecyclerView items
+dialog_confirm.xml       // Custom dialogs
+```
+
+### View IDs
+
+Use descriptive names with type suffixes:
+
+```xml
+<!-- Buttons -->
+<Button
+    android:id="@+id/button_first"
+    ... />
+
+<!-- TextViews -->
+<TextView
+    android:id="@+id/textview_first"
+    ... />
+
+<!-- Other common patterns -->
+android:id="@+id/edittext_username"
+android:id="@+id/imageview_profile"
+android:id="@+id/recyclerview_appointments"
+android:id="@+id/fab"  // FloatingActionButton
+android:id="@+id/toolbar"
+```
+
+### String Resources
+
+Use descriptive keys with context:
+
+```xml
+<resources>
+    <!-- App-level strings -->
+    <string name="app_name">VetyCare</string>
+    
+    <!-- Action strings -->
+    <string name="action_settings">Settings</string>
+    <string name="action_save">Save</string>
+    
+    <!-- Fragment labels -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    
+    <!-- Button text -->
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+    
+    <!-- Error messages -->
+    <string name="error_network">Network error occurred</string>
+    <string name="error_invalid_input">Invalid input</string>
+</resources>
+```
+
+### Dimension Resources
+
+Use consistent naming for dimensions:
+
+```xml
+<resources>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="padding_small">8dp</dimen>
+    <dimen name="padding_medium">16dp</dimen>
+    <dimen name="padding_large">24dp</dimen>
+    <dimen name="text_size_body">14sp</dimen>
+    <dimen name="text_size_heading">20sp</dimen>
+</resources>
+```
+
+## XML Formatting
+
+### Attribute Order
+
+Order XML attributes for consistency:
+
+```xml
+<Button
+    android:id="@+id/button_first"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/next"
+    android:padding="16dp"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toEndOf="parent" />
+```
+
+**Order:**
+1. `android:id`
+2. Layout dimensions (`layout_width`, `layout_height`)
+3. Other `android:` attributes (alphabetically)
+4. `app:` attributes (alphabetically)
+5. `tools:` attributes (alphabetically)
+
+### Layout Hierarchy
+
+Keep layouts flat when possible:
+
+```xml
+<!-- Good: Flat hierarchy with ConstraintLayout -->
+<androidx.constraintlayout.widget.ConstraintLayout>
+    <Button android:id="@+id/button_first" />
+    <TextView android:id="@+id/textview_first" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+<!-- Avoid: Deep nesting -->
+<LinearLayout>
+    <RelativeLayout>
+        <LinearLayout>
+            <Button />
+        </LinearLayout>
+    </RelativeLayout>
+</LinearLayout>
+```
+
+## Comments and Documentation
+
+### KDoc Comments
+
+Use KDoc for documenting classes and public functions:
+
+```kotlin
+/**
+ * A simple [Fragment] subclass as the default destination in the navigation.
+ */
+class FirstFragment : Fragment() {
+    // Implementation
+}
+
+/**
+ * Navigates to the user profile screen.
+ *
+ * @param userId The ID of the user to display
+ * @return true if navigation was successful
+ */
+fun navigateToProfile(userId: String): Boolean {
+    // Implementation
+}
+```
+
+### Inline Comments
+
+Use inline comments to explain non-obvious code:
+
+```kotlin
+// This property is only valid between onCreateView and onDestroyView.
+private val binding get() = _binding!!
+
+// Handle action bar item clicks here. The action bar will
+// automatically handle clicks on the Home/Up button, so long
+// as you specify a parent activity in AndroidManifest.xml.
+return when (item.itemId) {
+    R.id.action_settings -> true
+    else -> super.onOptionsItemSelected(item)
+}
+```
+
+<Tip>
+  Write comments that explain **why**, not **what**. The code itself should be clear enough to explain what it does.
+</Tip>
+
+## Gradle Configuration
+
+Follow these conventions in `build.gradle.kts` files:
+
+```kotlin
+android {
+    namespace = "com.example.vetycare"
+    compileSdk = 36
+
+    defaultConfig {
+        applicationId = "com.example.vetycare"
+        minSdk = 28
+        targetSdk = 36
+        versionCode = 1
+        versionName = "1.0"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildFeatures {
+        viewBinding = true
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+}
+```
+
+## Testing Conventions
+
+### Unit Test Naming
+
+Use descriptive test names that explain what is being tested:
+
+```kotlin
+class ExampleUnitTest {
+    @Test
+    fun addition_isCorrect() {
+        assertEquals(4, 2 + 2)
+    }
+    
+    @Test
+    fun userLogin_withValidCredentials_returnsSuccess() {
+        // Test implementation
+    }
+    
+    @Test
+    fun userLogin_withInvalidPassword_returnsError() {
+        // Test implementation
+    }
+}
+```
+
+**Pattern**: `methodName_condition_expectedResult`
+
+## Code Quality Tools
+
+<CardGroup cols={2}>
+  <Card title="Android Lint" icon="magnifying-glass">
+    Run lint checks regularly:
+    
+    ```bash
+    ./gradlew lint
+    ```
+  </Card>
+  
+  <Card title="Detekt" icon="shield">
+    Consider adding Detekt for Kotlin static analysis
+  </Card>
+  
+  <Card title="ktlint" icon="broom">
+    Use ktlint for consistent Kotlin formatting
+  </Card>
+  
+  <Card title="Code Reviews" icon="users">
+    All code should be reviewed before merging
+  </Card>
+</CardGroup>
+
+## Best Practices Summary
+
+<Accordion title="Kotlin Best Practices">
+  - Use `val` over `var` whenever possible (immutability)
+  - Prefer data classes for model objects
+  - Use null safety features (`?.`, `?:`, `!!` sparingly)
+  - Leverage Kotlin extensions and higher-order functions
+  - Use coroutines for asynchronous operations
+  - Avoid `!!` operator unless you're certain the value is non-null
+</Accordion>
+
+<Accordion title="Android Best Practices">
+  - Always use ViewBinding instead of findViewById
+  - Follow the single activity pattern with Navigation component
+  - Use ViewModel for UI-related data
+  - Implement proper lifecycle handling
+  - Use Material Design 3 components
+  - Test on multiple screen sizes and Android versions
+</Accordion>
+
+<Accordion title="Resource Best Practices">
+  - Extract all strings to strings.xml (no hardcoded text)
+  - Use dimension resources for consistent spacing
+  - Use color resources instead of hardcoded colors
+  - Support dark theme with night resources
+  - Provide appropriate icons and drawables
+  - Keep layouts simple and performant
+</Accordion>
+
+## IDE Configuration
+
+### Android Studio Settings
+
+Configure Android Studio for consistency:
+
+1. **Code Style**: File → Settings → Editor → Code Style → Kotlin
+   - Set indent to 4 spaces
+   - Enable "Use single name import"
+
+2. **Auto-formatting**: Enable format on save
+   - File → Settings → Tools → Actions on Save
+   - Check "Reformat code" and "Optimize imports"
+
+3. **Inspections**: Enable Kotlin and Android inspections
+   - File → Settings → Editor → Inspections
+
+<Note>
+  Team members should use consistent IDE settings. Consider committing `.editorconfig` to the repository.
+</Note>
+
+By following these conventions, we maintain a clean, consistent, and maintainable codebase that's easy for all contributors to work with.

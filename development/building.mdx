@@ -1,0 +1,283 @@
+---
+title: Building the App
+description: Learn how to build VetyCare using Gradle, including debug and release configurations
+---
+
+## Overview
+
+VetyCare uses Gradle as its build system. The app supports multiple build types optimized for different stages of development and distribution.
+
+## Prerequisites
+
+Before building the app, ensure you have:
+
+- **JDK 11 or higher** - Required for compiling the app
+- **Android SDK** - With API level 36 (Android 15)
+- **Gradle Wrapper** - Included in the project (no separate installation needed)
+
+## Build Configuration
+
+The app's build configuration is defined in `app/build.gradle.kts`:
+
+<CodeGroup>
+```gradle app/build.gradle.kts
+android {
+    namespace = "com.example.vetycare"
+    compileSdk {
+        version = release(36) {
+            minorApiLevel = 1
+        }
+    }
+
+    defaultConfig {
+        applicationId = "com.example.vetycare"
+        minSdk = 28
+        targetSdk = 36
+        versionCode = 1
+        versionName = "1.0"
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    buildFeatures {
+        viewBinding = true
+    }
+}
+```
+</CodeGroup>
+
+### Key Configuration Values
+
+<CardGroup cols={2}>
+  <Card title="minSdk: 28" icon="android">
+    Minimum supported Android version (Android 9.0 Pie)
+  </Card>
+  <Card title="targetSdk: 36" icon="bullseye">
+    Target Android version (Android 15)
+  </Card>
+  <Card title="versionCode: 1" icon="hashtag">
+    Internal version number for app updates
+  </Card>
+  <Card title="versionName: 1.0" icon="tag">
+    User-facing version string
+  </Card>
+</CardGroup>
+
+## Build Types
+
+VetyCare supports two build types:
+
+### Debug Build
+
+Optimized for development with debugging enabled:
+
+- **Minification**: Disabled
+- **Debugging**: Enabled
+- **ProGuard**: Not applied
+- **Signing**: Uses debug keystore automatically
+
+### Release Build
+
+Optimized for production distribution:
+
+```gradle
+buildTypes {
+    release {
+        isMinifyEnabled = false
+        proguardFiles(
+            getDefaultProguardFile("proguard-android-optimize.txt"),
+            "proguard-rules.pro"
+        )
+    }
+}
+```
+
+<Note>
+Currently, code minification is disabled (`isMinifyEnabled = false`). Enable it before releasing to production to reduce APK size and obfuscate code.
+</Note>
+
+## Building with Gradle
+
+### Using the Gradle Wrapper
+
+The project includes Gradle Wrapper scripts that ensure everyone uses the same Gradle version:
+
+- **Linux/Mac**: `./gradlew`
+- **Windows**: `gradlew.bat`
+
+<Tip>
+Always use the Gradle Wrapper instead of a globally installed Gradle to ensure consistent builds across different environments.
+</Tip>
+
+### Build Commands
+
+<Steps>
+  <Step title="Navigate to Project Root">
+    Open a terminal and navigate to the VetyCare project directory:
+    
+    ```bash
+    cd /path/to/vetycare
+    ```
+  </Step>
+
+  <Step title="Build Debug APK">
+    Build a debug version for testing:
+    
+    ```bash
+    ./gradlew assembleDebug
+    ```
+    
+    This creates an APK at:
+    ```
+    app/build/outputs/apk/debug/app-debug.apk
+    ```
+  </Step>
+
+  <Step title="Build Release APK">
+    Build a release version for distribution:
+    
+    ```bash
+    ./gradlew assembleRelease
+    ```
+    
+    This creates an APK at:
+    ```
+    app/build/outputs/apk/release/app-release.apk
+    ```
+  </Step>
+</Steps>
+
+### Additional Build Commands
+
+<CodeGroup>
+```bash Clean Build
+# Remove all build artifacts
+./gradlew clean
+```
+
+```bash Clean + Build
+# Clean and build in one command
+./gradlew clean assembleDebug
+```
+
+```bash Build All Variants
+# Build all build types
+./gradlew assemble
+```
+
+```bash Build Bundle
+# Build Android App Bundle for Play Store
+./gradlew bundleRelease
+```
+</CodeGroup>
+
+## Build Output Locations
+
+After building, you'll find the generated files in these locations:
+
+| Build Type | Output Path |
+|------------|-------------|
+| Debug APK | `app/build/outputs/apk/debug/app-debug.apk` |
+| Release APK | `app/build/outputs/apk/release/app-release.apk` |
+| Release Bundle | `app/build/outputs/bundle/release/app-release.aab` |
+
+## ProGuard Configuration
+
+ProGuard rules are defined in `app/proguard-rules.pro`. The default configuration includes:
+
+```pro
+# Add project specific ProGuard rules here.
+# You can control the set of applied configuration files using the
+# proguardFiles setting in build.gradle.
+
+# If your project uses WebView with JS, uncomment the following
+# and specify the fully qualified class name to the JavaScript interface
+# class:
+#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
+#   public *;
+#}
+
+# Uncomment this to preserve the line number information for
+# debugging stack traces.
+#-keepattributes SourceFile,LineNumberTable
+
+# If you keep the line number information, uncomment this to
+# hide the original source file name.
+#-renamesourcefileattribute SourceFile
+```
+
+<Warning>
+Before enabling minification for release builds, thoroughly test the app to ensure ProGuard doesn't remove necessary classes.
+</Warning>
+
+## Build Features
+
+### View Binding
+
+View Binding is enabled in the project:
+
+```gradle
+buildFeatures {
+    viewBinding = true
+}
+```
+
+This generates binding classes for each XML layout file, providing type-safe access to views.
+
+## Gradle Properties
+
+Project-wide settings are configured in `gradle.properties`:
+
+```properties
+# JVM memory settings
+org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+
+# AndroidX support
+android.useAndroidX=true
+
+# Kotlin code style
+kotlin.code.style=official
+
+# R class optimization
+android.nonTransitiveRClass=true
+```
+
+## Troubleshooting
+
+### Build Fails with Memory Error
+
+Increase heap size in `gradle.properties`:
+
+```properties
+org.gradle.jvmargs=-Xmx4096m -Dfile.encoding=UTF-8
+```
+
+### Gradle Daemon Issues
+
+Stop all Gradle daemons:
+
+```bash
+./gradlew --stop
+```
+
+### Dependency Resolution Issues
+
+Sync and refresh dependencies:
+
+```bash
+./gradlew --refresh-dependencies
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Testing" icon="vial" href="/development/testing">
+    Learn how to run unit and instrumented tests
+  </Card>
+  <Card title="Deployment" icon="rocket" href="/development/deployment">
+    Prepare your app for release and Play Store submission
+  </Card>
+</CardGroup>

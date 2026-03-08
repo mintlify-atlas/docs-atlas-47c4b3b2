@@ -1,0 +1,247 @@
+---
+title: Contributing Guide
+description: Learn how to contribute to VetyCare and help make it better
+---
+
+Welcome to the VetyCare contributing guide! We're excited that you're interested in contributing to our Android veterinary care application. This guide will help you get started with the development process.
+
+## Code of Conduct
+
+By participating in this project, you agree to:
+
+- Be respectful and inclusive in all interactions
+- Provide constructive feedback and be open to receiving it
+- Focus on what is best for the community and the project
+- Show empathy towards other community members
+
+## Getting Started
+
+<Steps>
+  <Step title="Fork the Repository">
+    Navigate to the VetyCare repository and click the "Fork" button in the top right corner to create your own copy of the project.
+  </Step>
+  
+  <Step title="Clone Your Fork">
+    Clone your forked repository to your local machine:
+    
+    ```bash
+    git clone https://github.com/YOUR-USERNAME/vetycare.git
+    cd vetycare
+    ```
+  </Step>
+  
+  <Step title="Set Up Development Environment">
+    Ensure you have the following installed:
+    
+    - Android Studio (latest stable version)
+    - JDK 11 or higher
+    - Android SDK with API level 36
+    - Gradle (included with Android Studio)
+    
+    Open the project in Android Studio and let it sync Gradle dependencies.
+  </Step>
+  
+  <Step title="Create a Feature Branch">
+    Create a new branch for your feature or bug fix:
+    
+    ```bash
+    git checkout -b feature/your-feature-name
+    ```
+    
+    Use descriptive branch names:
+    - `feature/add-appointment-booking`
+    - `bugfix/fix-login-crash`
+    - `docs/update-readme`
+  </Step>
+</Steps>
+
+## Development Workflow
+
+### Making Changes
+
+<Note>
+  Always ensure your code follows the [Code Style Guide](/development/code-style) before committing.
+</Note>
+
+1. **Write clean, maintainable code** following Kotlin best practices
+2. **Use ViewBinding** for all UI interactions (already enabled in the project)
+3. **Follow Material Design 3** guidelines for UI components
+4. **Add comments** for complex logic or non-obvious implementations
+
+### Testing Requirements
+
+Before submitting your pull request, ensure:
+
+<CardGroup cols={2}>
+  <Card title="Unit Tests" icon="flask">
+    Run all unit tests and ensure they pass:
+    
+    ```bash
+    ./gradlew test
+    ```
+  </Card>
+  
+  <Card title="Instrumented Tests" icon="mobile">
+    Run instrumented tests on a device or emulator:
+    
+    ```bash
+    ./gradlew connectedAndroidTest
+    ```
+  </Card>
+  
+  <Card title="Build Verification" icon="hammer">
+    Verify the app builds successfully:
+    
+    ```bash
+    ./gradlew assembleDebug
+    ```
+  </Card>
+  
+  <Card title="Code Quality" icon="check">
+    Ensure no lint warnings or errors:
+    
+    ```bash
+    ./gradlew lint
+    ```
+  </Card>
+</CardGroup>
+
+### Commit Guidelines
+
+Write clear, descriptive commit messages:
+
+```bash
+git add .
+git commit -m "feat: add appointment booking feature"
+```
+
+**Commit Message Format:**
+
+- `feat:` - New feature
+- `fix:` - Bug fix
+- `docs:` - Documentation changes
+- `style:` - Code style changes (formatting, no logic change)
+- `refactor:` - Code refactoring
+- `test:` - Adding or updating tests
+- `chore:` - Maintenance tasks
+
+### Push Your Changes
+
+Push your branch to your fork:
+
+```bash
+git push origin feature/your-feature-name
+```
+
+## Submitting a Pull Request
+
+<Steps>
+  <Step title="Create Pull Request">
+    Go to the original VetyCare repository and click "New Pull Request". Select your fork and branch.
+  </Step>
+  
+  <Step title="Fill Out PR Template">
+    Provide a clear description of your changes:
+    
+    - **Title**: Brief summary of the change
+    - **Description**: Detailed explanation of what and why
+    - **Related Issues**: Reference any related issues (#123)
+    - **Screenshots**: Include screenshots for UI changes
+    - **Testing**: Describe how you tested your changes
+  </Step>
+  
+  <Step title="Wait for Review">
+    Project maintainers will review your PR. Be responsive to feedback and make requested changes promptly.
+  </Step>
+  
+  <Step title="Address Feedback">
+    If changes are requested:
+    
+    ```bash
+    # Make the requested changes
+    git add .
+    git commit -m "refactor: address PR feedback"
+    git push origin feature/your-feature-name
+    ```
+  </Step>
+</Steps>
+
+## Submitting Issues
+
+### Bug Reports
+
+When reporting a bug, include:
+
+<Accordion title="Bug Report Template">
+  **Description**: Clear description of the bug
+  
+  **Steps to Reproduce**:
+  1. Go to '...'
+  2. Click on '...'
+  3. See error
+  
+  **Expected Behavior**: What should happen
+  
+  **Actual Behavior**: What actually happens
+  
+  **Environment**:
+  - Android Version: (e.g., Android 14)
+  - Device: (e.g., Pixel 7)
+  - App Version: (e.g., 1.0)
+  
+  **Screenshots**: If applicable
+  
+  **Logs**: Relevant error messages or stack traces
+</Accordion>
+
+### Feature Requests
+
+When requesting a feature:
+
+- Clearly describe the problem the feature would solve
+- Explain why this feature would be useful to most users
+- Provide examples of how the feature would work
+- Consider potential implementation approaches
+
+## What to Contribute
+
+Looking for ways to contribute? Here are some ideas:
+
+<CardGroup cols={2}>
+  <Card title="Good First Issues" icon="seedling">
+    Check issues labeled `good first issue` for beginner-friendly tasks
+  </Card>
+  
+  <Card title="Bug Fixes" icon="bug">
+    Help fix reported bugs and improve stability
+  </Card>
+  
+  <Card title="Feature Development" icon="star">
+    Implement new features from the roadmap
+  </Card>
+  
+  <Card title="Documentation" icon="book">
+    Improve documentation, add examples, or fix typos
+  </Card>
+  
+  <Card title="Testing" icon="flask">
+    Add tests to improve code coverage
+  </Card>
+  
+  <Card title="UI/UX" icon="palette">
+    Enhance the user interface and experience
+  </Card>
+</CardGroup>
+
+## Questions?
+
+<Tip>
+  If you have questions or need help, feel free to:
+  - Open a discussion in the GitHub Discussions tab
+  - Comment on relevant issues
+  - Reach out to maintainers
+</Tip>
+
+## Thank You!
+
+Your contributions help make VetyCare better for everyone. We appreciate your time and effort in improving this project!

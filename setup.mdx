@@ -1,0 +1,535 @@
+---
+title: 'Development Setup'
+description: 'Complete guide to setting up your VetyCare development environment'
+---
+
+<Note>
+  This guide covers everything you need to configure a professional Android development environment for VetyCare, including IDE setup, SDK configuration, and common troubleshooting.
+</Note>
+
+## System Requirements
+
+### Hardware
+
+- **RAM**: 8 GB minimum, 16 GB recommended
+- **Disk Space**: 10 GB minimum for Android Studio and SDK
+- **CPU**: 64-bit processor with virtualization support (for emulator)
+
+### Operating Systems
+
+- Windows 10/11 (64-bit)
+- macOS 10.14 (Mojave) or later
+- Linux (64-bit Ubuntu, Debian, Fedora, or similar)
+
+## Install Android Studio
+
+<Steps>
+  <Step title="Download Android Studio">
+    Download the latest version of Android Studio from the official website:
+
+    [Download Android Studio](https://developer.android.com/studio)
+
+    <Note>
+      VetyCare requires Android Studio Ladybug | 2024.2.1 or later.
+    </Note>
+  </Step>
+
+  <Step title="Install Android Studio">
+    <CodeGroup>
+      ```bash macOS
+      # Open the downloaded DMG file
+      # Drag Android Studio to Applications folder
+      # Launch Android Studio from Applications
+      ```
+
+      ```bash Windows
+      # Run the downloaded .exe installer
+      # Follow the setup wizard
+      # Accept default installation options
+      # Launch Android Studio when complete
+      ```
+
+      ```bash Linux
+      # Extract the downloaded archive
+      tar -xzf android-studio-*.tar.gz
+      
+      # Move to /opt/ (optional)
+      sudo mv android-studio /opt/
+      
+      # Run the setup script
+      cd /opt/android-studio/bin
+      ./studio.sh
+      ```
+    </CodeGroup>
+  </Step>
+
+  <Step title="Complete Initial Setup">
+    On first launch:
+
+    1. Choose **Standard** installation type
+    2. Select your UI theme (light or dark)
+    3. Verify settings and click **Finish**
+    4. Wait for component downloads (SDK, emulator, etc.)
+
+    <Tip>
+      The Standard installation includes everything you need for VetyCare development.
+    </Tip>
+  </Step>
+</Steps>
+
+## Configure Android SDK
+
+VetyCare has specific SDK requirements based on the build configuration:
+
+### SDK Version Requirements
+
+From `app/build.gradle.kts`:
+
+```kotlin app/build.gradle.kts:13-16
+defaultConfig {
+    applicationId = "com.example.vetycare"
+    minSdk = 28
+    targetSdk = 36
+    versionCode = 1
+    versionName = "1.0"
+}
+```
+
+- **Minimum SDK**: API 28 (Android 9.0 Pie)
+- **Target SDK**: API 36 (Android 15)
+- **Compile SDK**: API 36
+
+<Steps>
+  <Step title="Open SDK Manager">
+    In Android Studio:
+    
+    1. Click **Tools** → **SDK Manager**
+    2. Or click the SDK Manager icon in the toolbar
+  </Step>
+
+  <Step title="Install Required SDK Platforms">
+    In the **SDK Platforms** tab, ensure these are checked:
+
+    - ✅ Android 15.0 (API 36) - **Required**
+    - ✅ Android 9.0 (Pie) (API 28) - For minimum SDK testing
+    - ✅ Show Package Details (to see system images)
+
+    Click **Apply** to install.
+
+    <Warning>
+      You must have Android API 36 installed, or the project will not compile.
+    </Warning>
+  </Step>
+
+  <Step title="Install SDK Build Tools">
+    In the **SDK Tools** tab, ensure these are checked:
+
+    - ✅ Android SDK Build-Tools
+    - ✅ Android SDK Command-line Tools
+    - ✅ Android SDK Platform-Tools
+    - ✅ Android Emulator
+    - ✅ Intel x86 Emulator Accelerator (HAXM) - Windows/macOS only
+
+    Click **Apply** to install.
+  </Step>
+</Steps>
+
+## Install Java Development Kit (JDK)
+
+VetyCare requires JDK 11 based on the compile options:
+
+```kotlin app/build.gradle.kts:32-35
+compileOptions {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+```
+
+### Verify JDK Installation
+
+<CodeGroup>
+  ```bash macOS/Linux
+  java -version
+  # Should show version 11 or higher
+  ```
+
+  ```bash Windows
+  java -version
+  # Should show version 11 or higher
+  ```
+</CodeGroup>
+
+### Configure JDK in Android Studio
+
+<Steps>
+  <Step title="Check JDK Path">
+    1. Go to **File** → **Project Structure** → **SDK Location**
+    2. Verify **JDK location** points to JDK 11 or higher
+    3. If not, click **Download JDK** or specify a custom path
+  </Step>
+</Steps>
+
+<Note>
+  Android Studio typically bundles a compatible JDK. If you're using the bundled JDK, no additional configuration is needed.
+</Note>
+
+## Gradle Configuration
+
+VetyCare uses Gradle 9.2.1 with specific JVM settings.
+
+### Gradle Wrapper
+
+The project includes a Gradle wrapper, ensuring everyone uses the same version:
+
+```properties gradle/wrapper/gradle-wrapper.properties:5
+distributionUrl=https\://services.gradle.org/distributions/gradle-9.2.1-bin.zip
+```
+
+<Tip>
+  Never modify the Gradle wrapper version without team approval. The wrapper ensures build consistency across all development machines.
+</Tip>
+
+### Gradle JVM Settings
+
+From `gradle.properties`:
+
+```properties gradle.properties:9
+org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+```
+
+This allocates 2GB of memory to Gradle builds. If you experience build issues:
+
+<CodeGroup>
+  ```properties Increase Memory (4GB)
+  # In gradle.properties
+  org.gradle.jvmargs=-Xmx4096m -Dfile.encoding=UTF-8
+  ```
+
+  ```properties Increase Memory (8GB)
+  # In gradle.properties (for large projects)
+  org.gradle.jvmargs=-Xmx8192m -Dfile.encoding=UTF-8
+  ```
+</CodeGroup>
+
+### Key Gradle Properties
+
+```properties gradle.properties:17-23
+android.useAndroidX=true
+kotlin.code.style=official
+android.nonTransitiveRClass=true
+```
+
+- **useAndroidX**: Enables AndroidX library support
+- **kotlin.code.style**: Uses official Kotlin code style
+- **nonTransitiveRClass**: Optimizes R class generation for faster builds
+
+## Configure Android Emulator
+
+<Steps>
+  <Step title="Open Device Manager">
+    1. Click **Tools** → **Device Manager**
+    2. Or click the Device Manager icon in the toolbar
+  </Step>
+
+  <Step title="Create Virtual Device">
+    1. Click **Create Device**
+    2. Select a device definition:
+       - **Recommended**: Pixel 6, Pixel 7, or Pixel 8
+       - Screen: 1080 x 2400, 420 dpi
+    3. Click **Next**
+  </Step>
+
+  <Step title="Select System Image">
+    1. Select the **x86 Images** tab (for best performance)
+    2. Download and select an API 36 system image:
+       - **Recommended**: API 36, Android 15.0, x86_64, Android 15.0 (Google APIs)
+    3. Click **Next**
+  </Step>
+
+  <Step title="Configure AVD">
+    1. Name your AVD (e.g., "Pixel_6_API_36")
+    2. **Optional**: Enable hardware acceleration:
+       - Graphics: **Hardware - GLES 2.0**
+       - Device Frame: ✅ Enable Device Frame
+    3. Click **Finish**
+  </Step>
+</Steps>
+
+<Warning>
+  For optimal emulator performance, ensure virtualization is enabled in your BIOS/UEFI settings (VT-x for Intel, AMD-V for AMD).
+</Warning>
+
+### Alternative: Physical Device
+
+To use a physical Android device:
+
+<Steps>
+  <Step title="Enable Developer Options">
+    On your Android device:
+    
+    1. Go to **Settings** → **About phone**
+    2. Tap **Build number** 7 times
+    3. Developer options now available in Settings
+  </Step>
+
+  <Step title="Enable USB Debugging">
+    1. Go to **Settings** → **Developer options**
+    2. Enable **USB debugging**
+    3. Connect device via USB
+    4. Accept the debugging authorization prompt
+  </Step>
+
+  <Step title="Verify Connection">
+    ```bash
+    # In terminal
+    adb devices
+    
+    # Should show your device:
+    # List of devices attached
+    # ABC123456789    device
+    ```
+  </Step>
+</Steps>
+
+## Project Dependencies
+
+VetyCare uses version catalog for dependency management (`gradle/libs.versions.toml`):
+
+### Core Dependencies
+
+```toml gradle/libs.versions.toml:1-11
+[versions]
+agp = "9.0.1"
+coreKtx = "1.17.0"
+junit = "4.13.2"
+junitVersion = "1.3.0"
+espressoCore = "3.7.0"
+appcompat = "1.7.1"
+material = "1.13.0"
+constraintlayout = "2.2.1"
+navigationFragmentKtx = "2.9.7"
+navigationUiKtx = "2.9.7"
+```
+
+### Key Libraries
+
+<CardGroup cols={2}>
+  <Card title="Material Design 3" icon="palette">
+    Version 1.13.0 - Modern UI components and theming
+  </Card>
+  
+  <Card title="Navigation Component" icon="route">
+    Version 2.9.7 - Fragment navigation and deep linking
+  </Card>
+  
+  <Card title="AndroidX Core KTX" icon="kotlin">
+    Version 1.17.0 - Kotlin extensions for Android APIs
+  </Card>
+  
+  <Card title="ConstraintLayout" icon="table-layout">
+    Version 2.2.1 - Flexible responsive layouts
+  </Card>
+</CardGroup>
+
+### Enable View Binding
+
+VetyCare uses View Binding for type-safe view access:
+
+```kotlin app/build.gradle.kts:36-38
+buildFeatures {
+    viewBinding = true
+}
+```
+
+This feature is already enabled in the project configuration.
+
+## Verify Setup
+
+<Steps>
+  <Step title="Clone and Open Project">
+    ```bash
+    git clone https://github.com/your-org/vetycare.git
+    cd vetycare
+    ```
+    
+    Open in Android Studio and wait for Gradle sync.
+  </Step>
+
+  <Step title="Run Gradle Check">
+    ```bash
+    ./gradlew check
+    ```
+    
+    This runs lint checks and unit tests.
+  </Step>
+
+  <Step title="Build the Project">
+    ```bash
+    ./gradlew assembleDebug
+    ```
+    
+    Should complete without errors.
+  </Step>
+
+  <Step title="Run on Emulator">
+    1. Start your AVD from Device Manager
+    2. Click Run (▶️) in Android Studio
+    3. App should launch successfully
+  </Step>
+</Steps>
+
+<Note>
+  The first build will take several minutes as Gradle downloads all dependencies. Subsequent builds will be much faster.
+</Note>
+
+## Troubleshooting
+
+### Common Issues
+
+<AccordionGroup>
+  <Accordion title="Error: SDK location not found">
+    **Solution:**
+    1. Go to **File** → **Project Structure** → **SDK Location**
+    2. Set Android SDK location (usually `~/Android/Sdk` on Linux/macOS or `C:\Users\YourName\AppData\Local\Android\Sdk` on Windows)
+    3. Click **Apply** and sync Gradle
+  </Accordion>
+
+  <Accordion title="Error: Unsupported class file major version 65">
+    **Cause:** Using incompatible JDK version.
+    
+    **Solution:**
+    1. Verify JDK 11 is installed
+    2. Go to **File** → **Settings** → **Build, Execution, Deployment** → **Build Tools** → **Gradle**
+    3. Set **Gradle JDK** to version 11
+    4. Click **Apply** and rebuild
+  </Accordion>
+
+  <Accordion title="Emulator won't start or is very slow">
+    **Solution:**
+    1. Ensure virtualization is enabled in BIOS (VT-x/AMD-V)
+    2. Install HAXM (Intel) or use ARM system images
+    3. Allocate more RAM to emulator in AVD settings
+    4. Use x86_64 system images instead of ARM
+  </Accordion>
+
+  <Accordion title="Gradle sync failed: Could not resolve dependencies">
+    **Solution:**
+    1. Check internet connection
+    2. Invalidate caches: **File** → **Invalidate Caches / Restart**
+    3. Delete `.gradle` folder in project root
+    4. Sync Gradle again
+    5. Check proxy settings if behind corporate firewall
+  </Accordion>
+
+  <Accordion title="Build fails with 'AAPT2 error'">
+    **Solution:**
+    1. Clean the project: **Build** → **Clean Project**
+    2. Rebuild: **Build** → **Rebuild Project**
+    3. If persists, delete `app/build` directory manually
+    4. Check for invalid XML resources in `res/` folders
+  </Accordion>
+
+  <Accordion title="Cannot resolve symbol 'R'">
+    **Cause:** Resources not generated or sync issue.
+    
+    **Solution:**
+    1. **Build** → **Clean Project**
+    2. **File** → **Sync Project with Gradle Files**
+    3. Check for errors in XML files (layouts, strings, etc.)
+    4. Ensure `namespace = "com.example.vetycare"` is in `app/build.gradle.kts`
+  </Accordion>
+</AccordionGroup>
+
+### Clear All Caches
+
+If you experience persistent issues:
+
+<CodeGroup>
+  ```bash macOS/Linux
+  # Stop Gradle daemon
+  ./gradlew --stop
+  
+  # Clear Gradle caches
+  rm -rf ~/.gradle/caches/
+  
+  # Clear project build files
+  ./gradlew clean
+  
+  # Rebuild
+  ./gradlew assembleDebug
+  ```
+
+  ```bash Windows
+  # Stop Gradle daemon
+  gradlew.bat --stop
+  
+  # Clear Gradle caches
+  rmdir /s /q %USERPROFILE%\.gradle\caches
+  
+  # Clear project build files
+  gradlew.bat clean
+  
+  # Rebuild
+  gradlew.bat assembleDebug
+  ```
+</CodeGroup>
+
+## Development Tools
+
+### Recommended Android Studio Plugins
+
+- **Kotlin** (pre-installed) - Kotlin language support
+- **Android Lint** (pre-installed) - Code quality checks
+- **ADB Idea** - Quick ADB commands from IDE
+- **.ignore** - Gitignore file support
+
+### Useful Gradle Commands
+
+```bash
+# List all tasks
+./gradlew tasks
+
+# Build debug APK
+./gradlew assembleDebug
+
+# Build release APK
+./gradlew assembleRelease
+
+# Install debug APK on connected device
+./gradlew installDebug
+
+# Run unit tests
+./gradlew test
+
+# Run instrumented tests
+./gradlew connectedAndroidTest
+
+# Lint checks
+./gradlew lint
+
+# Generate lint report
+./gradlew lintDebug
+
+# Clean build artifacts
+./gradlew clean
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Architecture Guide" icon="diagram-project" href="/architecture/overview">
+    Learn about VetyCare's architecture and design patterns
+  </Card>
+  
+  <Card title="Contributing" icon="code-pull-request" href="/development/contributing">
+    Guidelines for contributing code to VetyCare
+  </Card>
+  
+  <Card title="Testing" icon="vial" href="/development/testing">
+    Writing and running tests for VetyCare
+  </Card>
+  
+  <Card title="Build & Release" icon="rocket" href="/development/deployment">
+    Building release APKs and deployment
+  </Card>
+</CardGroup>

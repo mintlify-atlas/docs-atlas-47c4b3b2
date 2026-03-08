@@ -1,0 +1,346 @@
+---
+title: Themes & Styling
+description: Learn about VetyCare's theming architecture using Material Design 3, including light/dark theme support and color resources
+---
+
+VetyCare implements a comprehensive theming system built on Material Design 3, providing automatic light and dark theme support with dynamic color capabilities.
+
+## Theme Architecture
+
+The app uses a hierarchical theme structure that extends Material 3's base themes:
+
+<Steps>
+  <Step title="Base Material Theme">
+    `Theme.Material3.DayNight.NoActionBar` - Material Design 3 foundation with day/night support
+  </Step>
+  <Step title="Base App Theme">
+    `Base.Theme.VetyCare` - App-specific customizations extending the Material theme
+  </Step>
+  <Step title="App Theme">
+    `Theme.VetyCare` - Final theme applied to the application
+  </Step>
+</Steps>
+
+## Theme Definition
+
+### Light Theme
+
+The default light theme is defined in `values/themes.xml`:
+
+```xml values/themes.xml
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.VetyCare" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    </style>
+
+    <style name="Theme.VetyCare" parent="Base.Theme.VetyCare" />
+</resources>
+```
+
+<Tabs>
+  <Tab title="Base Theme">
+    `Base.Theme.VetyCare` directly extends `Theme.Material3.DayNight.NoActionBar`, which provides:
+    - Material 3 component styles
+    - Automatic light/dark switching based on system settings
+    - No built-in ActionBar (using MaterialToolbar instead)
+    - Dynamic color support on Android 12+
+  </Tab>
+  <Tab title="App Theme">
+    `Theme.VetyCare` extends the base theme, allowing for version-specific overrides in other resource qualifiers (like `values-v23`).
+  </Tab>
+</Tabs>
+
+### Dark Theme
+
+The dark theme is defined in `values-night/themes.xml`:
+
+```xml values-night/themes.xml
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.VetyCare" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your dark theme here. -->
+        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+    </style>
+</resources>
+```
+
+<Note>
+The `-night` resource qualifier automatically applies this theme when the device is in dark mode. The same theme name in different qualifier directories allows seamless switching without code changes.
+</Note>
+
+## Material 3 Theme Attributes
+
+Material Design 3 provides a comprehensive set of theme attributes that components automatically reference:
+
+<CardGroup cols={2}>
+  <Card title="Color Attributes" icon="palette">
+    - `colorPrimary` - Primary brand color
+    - `colorOnPrimary` - Text/icons on primary
+    - `colorPrimaryContainer` - Primary container color
+    - `colorSecondary` - Secondary brand color
+    - `colorTertiary` - Tertiary accent color
+    - `colorSurface` - Surface background color
+    - `colorError` - Error state color
+  </Card>
+  <Card title="Shape Attributes" icon="shapes">
+    - `shapeAppearanceSmallComponent` - Small components
+    - `shapeAppearanceMediumComponent` - Medium components
+    - `shapeAppearanceLargeComponent` - Large components
+  </Card>
+  <Card title="Typography Attributes" icon="font">
+    - `textAppearanceHeadline*` - Headlines
+    - `textAppearanceBody*` - Body text
+    - `textAppearanceLabel*` - Labels
+    - `textAppearanceTitle*` - Titles
+  </Card>
+  <Card title="Elevation Attributes" icon="layer-group">
+    - `elevationLevel0` through `elevationLevel5`
+    - Tonal elevation for Material 3 surfaces
+  </Card>
+</CardGroup>
+
+<Tip>
+Material 3 uses **tonal elevation** instead of shadow-based elevation, applying color overlays to surfaces to indicate depth hierarchy.
+</Tip>
+
+## Color Resources
+
+VetyCare defines basic color resources in `values/colors.xml`:
+
+```xml values/colors.xml
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>
+```
+
+### Dynamic Color Support
+
+Material Design 3 automatically generates color schemes from the user's wallpaper on Android 12 and above. The app doesn't need to define a complete color palette - Material 3 provides:
+
+<Steps>
+  <Step title="System Color Extraction">
+    Material 3 extracts colors from the device wallpaper when dynamic color is enabled
+  </Step>
+  <Step title="Color Scheme Generation">
+    A full color scheme is generated including primary, secondary, tertiary, and all tonal variants
+  </Step>
+  <Step title="Automatic Application">
+    All Material components automatically use the generated color scheme without code changes
+  </Step>
+  <Step title="Fallback Colors">
+    On devices below Android 12, Material 3 uses default Material Design colors
+  </Step>
+</Steps>
+
+<Warning>
+If you want to override dynamic colors and enforce a custom color palette, you must explicitly define color theme attributes in your theme styles.
+</Warning>
+
+## Theme Application
+
+The theme is applied to the application and activities in `AndroidManifest.xml`:
+
+```xml AndroidManifest.xml
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.VetyCare">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.VetyCare">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
+```
+
+<Tabs>
+  <Tab title="Application Theme">
+    The theme is set at the `<application>` level, applying to all activities by default.
+  </Tab>
+  <Tab title="Activity Theme">
+    MainActivity explicitly specifies the same theme, allowing for activity-specific theme overrides if needed.
+  </Tab>
+  <Tab title="RTL Support">
+    `android:supportsRtl="true"` enables proper right-to-left layout for RTL languages.
+  </Tab>
+</Tabs>
+
+## NoActionBar Theme
+
+VetyCare uses `Theme.Material3.DayNight.NoActionBar` as the parent theme:
+
+```xml
+<style name="Base.Theme.VetyCare" parent="Theme.Material3.DayNight.NoActionBar">
+```
+
+This theme variant **excludes the default ActionBar**, allowing the app to use `MaterialToolbar` for greater flexibility:
+
+<CardGroup cols={2}>
+  <Card title="Custom Toolbar">
+    MaterialToolbar in the layout provides full control over appearance and behavior
+  </Card>
+  <Card title="CoordinatorLayout Integration">
+    Toolbar can be placed inside AppBarLayout for scrolling behaviors and coordinated motion
+  </Card>
+  <Card title="Material 3 Styling">
+    MaterialToolbar automatically receives Material 3 theming and elevation
+  </Card>
+  <Card title="Edge-to-Edge Support">
+    Easier implementation of edge-to-edge UI with custom toolbar placement
+  </Card>
+</CardGroup>
+
+## Version-Specific Themes
+
+VetyCare includes a version-specific theme override in `values-v23/themes.xml` for API level 23+ (Android 6.0+):
+
+```xml values-v23/themes.xml
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="Theme.VetyCare" parent="Base.Theme.VetyCare">
+        <!-- Transparent system bars for edge-to-edge. -->
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
+    </style>
+</resources>
+```
+
+<Note>
+This configuration enables edge-to-edge display with transparent system bars on supported devices, creating a more immersive experience.
+</Note>
+
+## Customizing Themes
+
+To customize VetyCare's themes with your own colors:
+
+### Adding Custom Colors
+
+<Steps>
+  <Step title="Define Color Resources">
+    Add your color definitions to `values/colors.xml`:
+    
+    ```xml values/colors.xml
+    <resources>
+        <color name="black">#FF000000</color>
+        <color name="white">#FFFFFFFF</color>
+        
+        <!-- Custom brand colors -->
+        <color name="brand_primary">#FF6200EE</color>
+        <color name="brand_secondary">#FF03DAC5</color>
+        <color name="brand_tertiary">#FF018786</color>
+    </resources>
+    ```
+  </Step>
+  
+  <Step title="Apply to Light Theme">
+    Reference colors in `values/themes.xml`:
+    
+    ```xml values/themes.xml
+    <style name="Base.Theme.VetyCare" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/brand_primary</item>
+        <item name="colorSecondary">@color/brand_secondary</item>
+        <item name="colorTertiary">@color/brand_tertiary</item>
+    </style>
+    ```
+  </Step>
+  
+  <Step title="Apply to Dark Theme">
+    Define dark mode variants in `values-night/themes.xml`:
+    
+    ```xml values-night/themes.xml
+    <style name="Base.Theme.VetyCare" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/brand_primary_dark</item>
+        <item name="colorSecondary">@color/brand_secondary_dark</item>
+        <item name="colorTertiary">@color/brand_tertiary_dark</item>
+    </style>
+    ```
+  </Step>
+</Steps>
+
+<Warning>
+When defining custom colors, ensure sufficient contrast ratios for accessibility (at least 4.5:1 for normal text, 3:1 for large text).
+</Warning>
+
+### Customizing Typography
+
+Override Material 3 typography attributes:
+
+```xml
+<style name="Base.Theme.VetyCare" parent="Theme.Material3.DayNight.NoActionBar">
+    <item name="textAppearanceHeadline1">@style/TextAppearance.VetyCare.Headline1</item>
+    <item name="textAppearanceBody1">@style/TextAppearance.VetyCare.Body1</item>
+</style>
+
+<style name="TextAppearance.VetyCare.Headline1" parent="TextAppearance.Material3.HeadlineLarge">
+    <item name="fontFamily">@font/custom_font</item>
+    <item name="android:textSize">32sp</item>
+</style>
+```
+
+### Customizing Shapes
+
+Modify component corner radius and shapes:
+
+```xml
+<style name="Base.Theme.VetyCare" parent="Theme.Material3.DayNight.NoActionBar">
+    <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.VetyCare.SmallComponent</item>
+    <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.VetyCare.MediumComponent</item>
+</style>
+
+<style name="ShapeAppearance.VetyCare.SmallComponent" parent="ShapeAppearance.Material3.SmallComponent">
+    <item name="cornerFamily">rounded</item>
+    <item name="cornerSize">8dp</item>
+</style>
+
+<style name="ShapeAppearance.VetyCare.MediumComponent" parent="ShapeAppearance.Material3.MediumComponent">
+    <item name="cornerFamily">rounded</item>
+    <item name="cornerSize">12dp</item>
+</style>
+```
+
+## Theme Best Practices
+
+When working with VetyCare's theming system:
+
+1. **Test Both Themes** - Always verify appearance in both light and dark modes
+2. **Use Theme Attributes** - Reference theme attributes (e.g., `?attr/colorPrimary`) instead of hardcoded colors
+3. **Maintain Hierarchy** - Keep the theme hierarchy (Material3 → Base.Theme.VetyCare → Theme.VetyCare)
+4. **Version Qualifiers** - Use resource qualifiers for API-specific theme features
+5. **Dynamic Color** - Consider how custom colors interact with dynamic theming on Android 12+
+6. **Accessibility** - Ensure sufficient contrast ratios for all text and interactive elements
+7. **Consistency** - Apply theming consistently across all components and screens
+
+<Tip>
+Use Android Studio's theme editor to preview how your theme attributes affect Material components in real-time.
+</Tip>
+
+## Related Documentation
+
+<CardGroup cols={2}>
+  <Card title="Material Design 3" icon="palette" href="/ui/material-design">
+    Learn about Material components and their theming integration
+  </Card>
+  <Card title="Layouts" icon="table-layout" href="/ui/layouts">
+    Explore layout structure and responsive design patterns
+  </Card>
+</CardGroup>

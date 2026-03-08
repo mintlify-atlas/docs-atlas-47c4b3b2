@@ -1,0 +1,546 @@
+---
+title: "Project Structure"
+description: "Understanding VetyCare's directory organization and file structure"
+---
+
+VetyCare follows the standard Android project structure with organized separation between source code, resources, and build configuration. This page documents the complete project structure and explains the purpose of each directory.
+
+## Project Overview
+
+```
+VetyCare/
+├── app/                          # Main application module
+│   ├── src/
+│   │   ├── main/                 # Main source set
+│   │   ├── androidTest/          # Instrumentation tests
+│   │   └── test/                 # Unit tests
+│   ├── build.gradle.kts          # App module build configuration
+│   └── proguard-rules.pro        # ProGuard rules for code obfuscation
+├── gradle/                       # Gradle wrapper files
+├── build.gradle.kts              # Project-level build configuration
+├── settings.gradle.kts           # Project settings and module inclusion
+├── gradle.properties             # Gradle configuration properties
+└── gradlew / gradlew.bat         # Gradle wrapper scripts
+```
+
+## Package Structure
+
+The application uses the package name: **`com.example.vetycare`**
+
+### Source Directory Layout
+
+<Tabs>
+  <Tab title="Main Source">
+    ```
+    app/src/main/
+    ├── java/com/example/vetycare/
+    │   ├── MainActivity.kt           # Main activity
+    │   ├── FirstFragment.kt          # First screen fragment
+    │   └── SecondFragment.kt         # Second screen fragment
+    ├── res/                          # Resources directory
+    └── AndroidManifest.xml           # App manifest
+    ```
+  </Tab>
+  
+  <Tab title="Test Source">
+    ```
+    app/src/test/java/com/example/vetycare/
+    └── ExampleUnitTest.kt            # Unit test examples
+    
+    app/src/androidTest/java/com/example/vetycare/
+    └── ExampleInstrumentedTest.kt    # Instrumentation test examples
+    ```
+  </Tab>
+</Tabs>
+
+## Source Code Organization
+
+### Kotlin Source Files
+
+All Kotlin source files are located in:
+```
+app/src/main/java/com/example/vetycare/
+```
+
+<CardGroup cols={3}>
+  <Card title="MainActivity.kt" icon="house">
+    Single activity that hosts all fragments and manages navigation
+  </Card>
+  <Card title="FirstFragment.kt" icon="1">
+    Default destination fragment in the navigation graph
+  </Card>
+  <Card title="SecondFragment.kt" icon="2">
+    Secondary destination fragment
+  </Card>
+</CardGroup>
+
+<Note>
+  Despite being Kotlin files, they are located in the `java/` directory. This is standard Android convention for JVM-based source files.
+</Note>
+
+### Activity Implementation
+
+From `MainActivity.kt:14`:
+
+```kotlin
+package com.example.vetycare
+
+import android.os.Bundle
+import com.google.android.material.snackbar.Snackbar
+import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.navigateUp
+import androidx.navigation.ui.setupActionBarWithNavController
+import android.view.Menu
+import android.view.MenuItem
+import com.example.vetycare.databinding.ActivityMainBinding
+
+class MainActivity : AppCompatActivity() {
+    private lateinit var appBarConfiguration: AppBarConfiguration
+    private lateinit var binding: ActivityMainBinding
+    
+    // Activity implementation...
+}
+```
+
+### Fragment Implementation Pattern
+
+Both fragments follow the same structure with view binding:
+
+```kotlin
+package com.example.vetycare
+
+import android.os.Bundle
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.navigation.fragment.findNavController
+import com.example.vetycare.databinding.FragmentFirstBinding
+
+class FirstFragment : Fragment() {
+    private var _binding: FragmentFirstBinding? = null
+    private val binding get() = _binding!!
+    
+    // Fragment lifecycle methods...
+}
+```
+
+## Resources Directory Structure
+
+The `app/src/main/res/` directory contains all application resources:
+
+### Resource Categories
+
+<AccordionGroup>
+  <Accordion title="Layout Resources (res/layout/)">
+    XML files defining the UI structure for activities and fragments.
+    
+    ```
+    res/layout/
+    ├── activity_main.xml          # Main activity layout
+    ├── content_main.xml           # Content container for navigation
+    ├── fragment_first.xml         # First fragment layout
+    └── fragment_second.xml        # Second fragment layout
+    ```
+    
+    **activity_main.xml** structure:
+    ```xml
+    <androidx.coordinatorlayout.widget.CoordinatorLayout>
+        <com.google.android.material.appbar.AppBarLayout>
+            <com.google.android.material.appbar.MaterialToolbar />
+        </com.google.android.material.appbar.AppBarLayout>
+        
+        <include layout="@layout/content_main" />
+        
+        <com.google.android.material.floatingactionbutton.FloatingActionButton />
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+    ```
+  </Accordion>
+  
+  <Accordion title="Navigation Resources (res/navigation/)">
+    Navigation graph defining app navigation structure.
+    
+    ```
+    res/navigation/
+    └── nav_graph.xml              # Navigation graph definition
+    ```
+    
+    See the [Navigation](/architecture/navigation) page for detailed information.
+  </Accordion>
+  
+  <Accordion title="Drawable Resources (res/drawable/)">
+    Vector graphics and drawable resources.
+    
+    ```
+    res/drawable/
+    ├── ic_launcher_background.xml  # Launcher icon background
+    └── ic_launcher_foreground.xml  # Launcher icon foreground
+    ```
+  </Accordion>
+  
+  <Accordion title="Menu Resources (res/menu/)">
+    Menu definitions for the action bar.
+    
+    ```
+    res/menu/
+    └── menu_main.xml              # Main activity menu
+    ```
+  </Accordion>
+  
+  <Accordion title="Mipmap Resources (res/mipmap-*)">
+    App launcher icons at different densities.
+    
+    ```
+    res/mipmap-anydpi/             # Adaptive icons
+    res/mipmap-mdpi/               # Medium density icons
+    res/mipmap-hdpi/               # High density icons
+    res/mipmap-xhdpi/              # Extra-high density icons
+    res/mipmap-xxhdpi/             # Extra-extra-high density icons
+    res/mipmap-xxxhdpi/            # Extra-extra-extra-high density icons
+    ```
+  </Accordion>
+  
+  <Accordion title="Values Resources (res/values/)">
+    String, color, dimension, and theme definitions.
+    
+    ```
+    res/values/
+    ├── strings.xml                # String resources
+    ├── colors.xml                 # Color definitions
+    ├── dimens.xml                 # Dimension values
+    └── themes.xml                 # Material 3 themes
+    
+    res/values-night/
+    └── themes.xml                 # Dark theme overrides
+    
+    res/values-v23/
+    └── themes.xml                 # API 23+ theme overrides
+    
+    res/values-land/
+    └── dimens.xml                 # Landscape dimensions
+    
+    res/values-w600dp/
+    └── dimens.xml                 # 600dp+ width dimensions
+    
+    res/values-w1240dp/
+    └── dimens.xml                 # 1240dp+ width dimensions
+    ```
+  </Accordion>
+  
+  <Accordion title="XML Resources (res/xml/)">
+    XML configuration files.
+    
+    ```
+    res/xml/
+    ├── backup_rules.xml           # Backup configuration
+    └── data_extraction_rules.xml  # Data extraction rules
+    ```
+  </Accordion>
+</AccordionGroup>
+
+### Theme Configuration
+
+From `res/values/themes.xml`:
+
+```xml
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Base.Theme.VetyCare" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+    </style>
+    
+    <style name="Theme.VetyCare" parent="Base.Theme.VetyCare" />
+</resources>
+```
+
+<Tip>
+  The theme extends `Theme.Material3.DayNight.NoActionBar` which provides automatic dark mode support and uses a custom toolbar instead of the default action bar.
+</Tip>
+
+## Configuration Files
+
+### AndroidManifest.xml
+
+Location: `app/src/main/AndroidManifest.xml`
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.VetyCare">
+        
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.VetyCare">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>
+```
+
+**Key Configuration:**
+- **Application ID**: `com.example.vetycare`
+- **Theme**: `@style/Theme.VetyCare` (Material 3)
+- **Backup**: Enabled with custom rules
+- **RTL Support**: Enabled
+- **Launcher Activity**: `MainActivity`
+
+### App Module Build Configuration
+
+Location: `app/build.gradle.kts`
+
+<CodeGroup>
+```gradle app/build.gradle.kts
+plugins {
+    alias(libs.plugins.android.application)
+}
+
+android {
+    namespace = "com.example.vetycare"
+    compileSdk {
+        version = release(36) {
+            minorApiLevel = 1
+        }
+    }
+    
+    defaultConfig {
+        applicationId = "com.example.vetycare"
+        minSdk = 28
+        targetSdk = 36
+        versionCode = 1
+        versionName = "1.0"
+        
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+    
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
+    
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+    
+    buildFeatures {
+        viewBinding = true
+    }
+}
+
+dependencies {
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
+    
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+}
+```
+</CodeGroup>
+
+**Build Configuration Highlights:**
+
+| Property | Value | Description |
+|----------|-------|-------------|
+| **compileSdk** | 36.1 | SDK version for compilation |
+| **minSdk** | 28 | Minimum Android version (Android 9.0 Pie) |
+| **targetSdk** | 36 | Target Android version |
+| **versionCode** | 1 | Internal version number |
+| **versionName** | "1.0" | User-visible version string |
+| **Java Version** | 11 | Java compatibility level |
+| **View Binding** | Enabled | Type-safe view access |
+
+### Project-Level Build Configuration
+
+Location: `build.gradle.kts`
+
+```gradle
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+plugins {
+    alias(libs.plugins.android.application) apply false
+}
+```
+
+### Settings Configuration
+
+Location: `settings.gradle.kts`
+
+```gradle
+pluginManagement {
+    repositories {
+        google {
+            content {
+                includeGroupByRegex("com\\.android.*")
+                includeGroupByRegex("com\\.google.*")
+                includeGroupByRegex("androidx.*")
+            }
+        }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.name = "VetyCare"
+include(":app")
+```
+
+<Note>
+  The project uses **centralized repository management** with `FAIL_ON_PROJECT_REPOS` mode to ensure all repositories are declared in settings.gradle.kts rather than in individual module build files.
+</Note>
+
+## Test Structure
+
+### Unit Tests
+
+Location: `app/src/test/java/com/example/vetycare/`
+
+```kotlin
+package com.example.vetycare
+
+import org.junit.Test
+import org.junit.Assert.*
+
+class ExampleUnitTest {
+    @Test
+    fun addition_isCorrect() {
+        assertEquals(4, 2 + 2)
+    }
+}
+```
+
+### Instrumentation Tests
+
+Location: `app/src/androidTest/java/com/example/vetycare/`
+
+```kotlin
+package com.example.vetycare
+
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.Assert.*
+
+@RunWith(AndroidJUnit4::class)
+class ExampleInstrumentedTest {
+    @Test
+    fun useAppContext() {
+        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
+        assertEquals("com.example.vetycare", appContext.packageName)
+    }
+}
+```
+
+## Gradle Wrapper
+
+The project includes Gradle wrapper scripts for consistent builds:
+
+- **gradlew** (Linux/Mac): `./gradlew <task>`
+- **gradlew.bat** (Windows): `gradlew.bat <task>`
+- **gradle/wrapper/**: Wrapper JAR and properties
+
+### Common Gradle Commands
+
+```bash
+# Build the app
+./gradlew build
+
+# Install debug APK on connected device
+./gradlew installDebug
+
+# Run unit tests
+./gradlew test
+
+# Run instrumentation tests
+./gradlew connectedAndroidTest
+
+# Clean build artifacts
+./gradlew clean
+```
+
+## Generated Files
+
+<Warning>
+  The following directories contain generated files and should not be manually edited:
+</Warning>
+
+- **app/build/**: Build outputs, APKs, and intermediate files
+- **app/build/generated/**: Generated source code from view binding, R class, etc.
+- **.gradle/**: Gradle cache and build metadata
+- **.idea/**: Android Studio project files
+
+## Project Structure Best Practices
+
+<Steps>
+  <Step title="Package Organization">
+    Keep all related source files in the `com.example.vetycare` package. As the app grows, create subpackages for features:
+    ```
+    com.example.vetycare/
+    ├── ui/
+    │   ├── home/
+    │   └── profile/
+    ├── data/
+    │   ├── model/
+    │   └── repository/
+    └── util/
+    ```
+  </Step>
+  
+  <Step title="Resource Naming">
+    Follow Android naming conventions:
+    - Layouts: `activity_main.xml`, `fragment_first.xml`
+    - IDs: `button_submit`, `text_title`
+    - Drawables: `ic_launcher_foreground.xml`
+    - Colors: `color_primary`, `color_secondary`
+  </Step>
+  
+  <Step title="Configuration Management">
+    Keep configuration in appropriate places:
+    - App-specific config: `app/build.gradle.kts`
+    - Project-wide config: `build.gradle.kts`
+    - Gradle properties: `gradle.properties`
+  </Step>
+</Steps>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Architecture Overview" icon="sitemap" href="/architecture/overview">
+    Learn about VetyCare's architecture pattern and components
+  </Card>
+  <Card title="Navigation" icon="route" href="/architecture/navigation">
+    Understand how navigation is implemented in the app
+  </Card>
+</CardGroup>
